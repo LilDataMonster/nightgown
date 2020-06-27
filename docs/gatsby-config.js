@@ -1,16 +1,16 @@
 module.exports = {
   siteMetadata: {
-    siteTitle: `@rocketseat/gatsby-theme-docs`,
-    defaultTitle: `@rocketseat/gatsby-theme-docs`,
-    siteTitleShort: `gatsby-theme-docs`,
-    siteDescription: `Out of the box Gatsby Theme for creating documentation websites easily and quickly`,
+    siteTitle: `Lil Data Monster - Jacket of Sleep`,
+    defaultTitle: `Lil Data Monster - Jacket of Sleep`,
+    siteTitleShort: `Jacket of Sleep`,
+    siteDescription: `Lil Data Monster Jacket of Sleep device`,
     siteUrl: `https://rocketdocs.netlify.com`,
-    siteAuthor: `@rocketseat`,
+    siteAuthor: `David Fan`,
     siteImage: `/banner.png`,
     siteLanguage: `en`,
-    themeColor: `#7159c1`,
+    themeColor: `#cf2ccb`,
     basePath: `/`,
-    footer: `Theme by Rocketseat`,
+    footer: `Lil Data Monster`,
   },
   plugins: [
     {
