@@ -17,6 +17,6 @@ jobs:
         provider: pages
         cleanup: true
         github_token: $GITHUB_TOKEN
-        local_dir: public
+        local_dir: docs/public
         on:
           branch: master
