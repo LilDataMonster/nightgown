@@ -1,0 +1,98 @@
+---
+title: 'Getting Started'
+metaTitle: 'Getting Started Page'
+metaDescription: 'Getting Started'
+---
+
+## Introduction
+
+The documented setup here is used get a developer up and running quickly implement and deploy The Loch Sense Monster software stack onto a device.
+
+## Dependency Setup
+
+Dependencies are required in order to compile and target the device.
+
+- ESP-IDF
+  - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/
+  - https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/
+- ESP-IDF-LIB
+  - https://esp-idf-lib.readthedocs.io/en/latest/
+
+To setup the development environment, the ESP-IDF environment variables must be set:
+
+| Environment Variable | Description      |
+|----------------------|------------------|
+|`IDF_PATH`            | ESP-IDF path     |
+|`IDF_LIB_PATH`        | ESP-IDF-LIB path |
+
+```bash
+# define location to store dependencies
+export BUILD_ENV=$HOME
+
+# clone dependencies
+cd $BUILD_ENV
+git clone https://github.com/espressif/esp-idf.git
+git clone https://github.com/UncleRus/esp-idf-lib.git
+
+# setup environment variables
+export IDF_PATH=$BUILD_ENV/esp-idf
+source $IDF_PATH/add_path.sh
+source $IDF_PATH/exort.sh
+
+export IDF_LIB_PATH=$BUILD_ENV/esp-idf-lib
+```
+
+## Set Target Device
+
+Before configuration of the build, setting a device target must be done to indicate what chip is being targeted for the build. The primary two options are the `ESP32` and the `ESP32-S2` device. ESP8266 is not officially supported but will likely work as well.
+
+To set the target device, run the following for the ESP32:
+
+```bash
+idf.py set-target esp32
+```
+
+For ESP32-S2 devices, run the following:
+
+```bash
+idf.py set-target esp32s2
+```
+
+## Configuration
+
+Configuration parameters can be defined using the ESP-IDF configuration menu by executing the following commands and modify custom project configurations within the menu.
+
+```bash
+idf.py menuconfig
+```
+
+The `Monster Configuration` menu defines several parameters used for the software stack.
+
+| Menu Option          | Description      |
+|----------------------|------------------|
+| WiFi SSID            | WiFi SSID AP to connect to |
+| WiFi Password        | WiFi Password to connect to AP with |
+| WiFi listen interval | Number of intervals for station to listen to becon from AP |
+| Power Save Mode      | Power save mode for the ESP32 to use |
+| Max CPU Frequency    | Maximum CPU frequency to use for dynamic frequency scaling |
+| Min CPU Frequency    | Minimum CPU frequency to use for dynamic frequency scaling, should be set to a factor of XTAL frequency |
+| DHT11 GPIO Pin       | GPIO pin to read the DHT11 sensor |
+| HTTP POST Endpoint   | HTTP endpoint to post data |
+
+## Build and Compile
+
+Building and compiling the code will begin creating the required binaries for the build and store them in the `build/` folder.
+
+To begin building the code run:
+
+```bash
+idf.py build
+```
+
+## Flash and Monitor
+
+To flash the build, find the serial location of the device on the host machine (`/dev/ttyUSB0` in this case) and run the `flash` command. Use the `monitor` command to read the serial output of the device. The baudrate is defined in the menu options discussed prior.
+
+```bash
+idf.py -p /dev/ttyUSB0 flash monitor
+```

@@ -1,10 +1,10 @@
 module.exports = {
   siteMetadata: {
-    siteTitle: `Lil Data Monster - Jacket of Sleep`,
-    defaultTitle: `Lil Data Monster - Jacket of Sleep`,
+    siteTitle: `Lil Data Monster - Nightgown`,
+    defaultTitle: `Lil Data Monster - Nightgown`,
     siteTitleShort: `Jacket of Sleep`,
-    siteDescription: `Lil Data Monster Jacket of Sleep device`,
-    siteUrl: `https://rocketdocs.netlify.com`,
+    siteDescription: `Lil Data Monster Nightgown`,
+    siteUrl: `https://lildatamonster.github.io/nightgown/`,
     siteAuthor: `David Fan`,
     siteImage: `/banner.png`,
     siteLanguage: `en`,
@@ -18,15 +18,15 @@ module.exports = {
       options: {
         configPath: `src/config`,
         docsPath: `src/docs`,
-        githubUrl: `https://github.com/rocketseat/gatsby-themes`,
-        baseDir: `examples/gatsby-theme-docs`,
+        githubUrl: `https://github.com/LilDataMonster/nightgown`,
+        baseDir: `docs`,
       },
     },
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Rocketseat Gatsby Themes`,
-        short_name: `RS Gatsby Themes`,
+        name: `Nightgown`,
+        short_name: `Nightgown`,
         start_url: `/`,
         background_color: `#ffffff`,
         display: `standalone`,
@@ -43,7 +43,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-canonical-urls`,
       options: {
-        siteUrl: `https://rocketdocs.netlify.com`,
+        siteUrl: `https://lildatamonster.github.io/nightgown/`,
       },
     },
     `gatsby-plugin-offline`,
