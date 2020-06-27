@@ -9,7 +9,7 @@ module.exports = {
     siteImage: `/banner.png`,
     siteLanguage: `en`,
     themeColor: `#cf2ccb`,
-    basePath: `/`,
+    basePath: `/nightgown/`,
     footer: `Lil Data Monster`,
   },
   plugins: [
