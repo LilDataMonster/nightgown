@@ -15,6 +15,7 @@ jobs:
         - yarn run deploy
       deploy:
         provider: pages
+        cleanup: false
         github_token: $GITHUB_TOKEN
         local_dir: docs/public
         on:
