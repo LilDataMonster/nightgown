@@ -9,9 +9,11 @@ module.exports = {
     siteImage: `/banner.png`,
     siteLanguage: `en`,
     themeColor: `#cf2ccb`,
-    basePath: `/nightgown/`,
+    basePath: `/`,
     footer: `Lil Data Monster`,
   },
+  // prefix path for github pages
+  pathPrefix: "/nightgown",
   plugins: [
     {
       resolve: `@rocketseat/gatsby-theme-docs`,
