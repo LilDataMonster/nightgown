@@ -1,14 +1,14 @@
-menu "Example Configuration"
+menu "Monster Configuration"
 
     config EXAMPLE_WIFI_SSID
         string "WiFi SSID"
-        default "myssid"
+        default "WIFI_SSID"
         help
             SSID (network name) for the example to connect to.
 
     config EXAMPLE_WIFI_PASSWORD
         string "WiFi Password"
-        default "mypassword"
+        default "WIFI_PASSWORD"
         help
             WiFi password (WPA or WPA2) for the example to use.
 
@@ -105,5 +105,5 @@ menu "Example Configuration"
         default "https://ldm-nodered.herokuapp.com/esp32"
         help
             URL endpoint for the POST message.
-            
+
 endmenu

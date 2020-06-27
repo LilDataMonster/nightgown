@@ -1,3 +1,9 @@
+# build artifacts
+build/
+sdkconfig
+sdkconfig.old
+
+# C++ Ignore
 # Prerequisites
 *.d
 

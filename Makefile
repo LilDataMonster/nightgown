@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := power_save
+PROJECT_NAME := jacket_of_sleep
 
 include $(IDF_PATH)/make/project.mk
 
