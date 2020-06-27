@@ -1,17 +1,20 @@
-language: node_js
+language: c
+os: linux
 
-os:
-  - linux
-
-before_script:
-  - npm install -g gatsby
-
-node_js:
-  - "12.13"
-
-deploy:
-  provider: script
-  script: cd docs/ && yarn install && yarn run deploy
-  cleanup: true
-  on:
-    branch: master
+jobs:
+  include:
+    - stage: deployment
+      name: "Deploy GitHub Pages Documentation"
+      node_js: "12.13"
+      before_script:
+        - npm install -g gatsby
+      script:
+        - cd docs/
+        - yarn install
+        - yarn run deploy
+      deploy:
+        provider: script
+        cleanup: true
+        github_token: $GITHUB_TOKEN
+        on:
+          branch: master
