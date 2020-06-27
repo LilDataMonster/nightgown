@@ -5,12 +5,13 @@ jobs:
   include:
     - stage: deployment
       name: "Deploy GitHub Pages Documentation"
-      node_js: "12.13"
+      language: node_js
+      node_js:
+        - 12
       before_script:
-        - npm install -g gatsby
-      script:
         - cd docs/
         - yarn install
+      script:
         - yarn run deploy
       deploy:
         provider: script
