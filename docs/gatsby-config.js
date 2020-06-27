@@ -2,8 +2,8 @@ module.exports = {
   siteMetadata: {
     siteTitle: `Lil Data Monster - Nightgown`,
     defaultTitle: `Lil Data Monster - Nightgown`,
-    siteTitleShort: `Jacket of Sleep`,
-    siteDescription: `Lil Data Monster Nightgown`,
+    siteTitleShort: `Nightgown`,
+    siteDescription: `The Lil Data Monster Nightgown software stack`,
     siteUrl: `https://lildatamonster.github.io/nightgown/`,
     siteAuthor: `David Fan`,
     siteImage: `/banner.png`,
