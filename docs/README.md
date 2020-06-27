@@ -1,26 +1,58 @@
-## Gatsby Starter Kit
+<p align="center">
+  <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/theme-docs.svg" alt="A illustration of file that is the @rocketseat/gatsby-theme-docs logo" width="100">
+</p>
 
-# Blog
+<h2 align="center">
+  Gatsby Starter: Rocket Docs
+</h2>
 
-MIT License
+<p align="center">
+  Out of the box Gatsby Starter for creating documentation websites easily and quickly. With support for MDX, code highlight, Analytics, SEO and more 🔥 Using the theme: <a href="https://github.com/Rocketseat/gatsby-themes/tree/master/%40rocketseat/gatsby-theme-docs">@rocketseat/gatsby-theme-docs</a>
+</p>
 
-Copyright (c) 2018 greg lobinski
+<p align="center">
+  <img src="https://img.shields.io/badge/PRs-welcome-%237159c1.svg" alt="PRs welcome!" />
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-%237159c1">
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  <a href="https://twitter.com/intent/follow?screen_name=rocketseat">
+    <img src="https://img.shields.io/twitter/follow/rocketseat.svg?label=Follow%20@rocketseat" alt="Follow @rocketseat" />
+  </a>
+</p>
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## 🚀 Features
 
+- MDX for docs;
+- Fully customizable through the usage of Gatsby Themes (and Theme UI)
+- Sidebar customization with Yaml;
+- Code highlighting with [prism-react-renderer](https://github.com/FormidableLabs/prism-react-renderer) and [react-live](https://github.com/FormidableLabs/react-live) support. Copy code button and option to show line numbers.
+- SEO (Sitemap, schema.org data, Open Graph and Twitter tags).
+- Google Analytics support;
+- Offline Support & WebApp Manifest
+
+## ⚡️ Getting started
+
+1. Create the website.
+
+    ```sh
+    gatsby new rocket-docs https://github.com/rocketseat/gatsby-starter-rocket-docs
+    ```
+
+2. Start developing.
+
+    ```sh
+    cd rocket-docs
+    gatsby develop
+    ```
+
+3. Are you ready for launch? 
+
+    Your site is now running at `http://localhost:8000`
+
+## 📄 Docs
+
+Looking for docs? Check our live demo and documentation [website](https://rocketdocs.netlify.com).
+
+---
+
+Made with 💜 by Rocketseat :wave: [check our community!](https://discordapp.com/invite/gCRAFhc)

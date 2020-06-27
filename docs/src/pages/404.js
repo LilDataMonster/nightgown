@@ -1,81 +1,18 @@
 import React from 'react';
-import { graphql } from 'gatsby';
+import { Link } from 'gatsby';
 
-import '@react-website-themes/default/styles/variables';
-import '@react-website-themes/default/styles/global';
+import Layout from '@rocketseat/gatsby-theme-docs/src/components/Layout';
+import SEO from '@rocketseat/gatsby-theme-docs/src/components/SEO';
 
-import Article from '@react-website-themes/default/components/Article';
-import Bodytext from '@react-website-themes/default/components/Bodytext';
-import Branding from '@react-website-themes/default/components/Branding';
-import Footer from '@react-website-themes/default/components/Footer';
-import Header from '@react-website-themes/default/components/Header';
-import Heading from '@react-website-themes/default/components/Heading';
-import Layout from '@react-website-themes/default/components/Layout';
-import Menu from '@react-website-themes/default/components/Menu';
-import Seo from '@react-website-themes/default/components/Seo';
-
-import config from '../content/meta/config';
-import menu from '../content/meta/menu';
-
-const NotFoundPage = props => {
-  const {
-    data: {
-      notFound: { html: notFoundHTML },
-      footerLinks: { html: footerLinksHTML },
-      copyright: { html: copyrightHTML },
-    },
-  } = props;
-
-  const {
-    headerTitle,
-    headerSubTitle,
-    siteUrl,
-    siteTitle,
-    siteDescription,
-    siteLanguage,
-    siteImage,
-  } = config;
-
+export default function NotFound() {
   return (
-    <Layout>
-      <Header>
-        <Branding title={headerTitle} subTitle={headerSubTitle} />
-        <Menu items={menu} />
-      </Header>
-      <Article>
-        <Heading title="NOT FOUND" />
-        <Bodytext html={notFoundHTML} />
-      </Article>
-      <Footer links={footerLinksHTML} copyright={copyrightHTML} />
-      <Seo
-        url={siteUrl}
-        language={siteLanguage}
-        title={siteTitle}
-        description={siteDescription}
-        image={siteImage}
-      />
+    <Layout title="Page not found!">
+      <SEO title="404: Not found" />
+      <p>You just hit a route that doesn&#39;t exist... the sadness.</p>
+      <p>
+        If you&#39;d like to go back to homepage, <Link to="/">click here</Link>
+        .
+      </p>
     </Layout>
   );
-};
-
-export default NotFoundPage;
-
-export const query = graphql`
-  query {
-    notFound: markdownRemark(
-      fileAbsolutePath: { regex: "/content/parts/notFound/" }
-    ) {
-      html
-    }
-    footerLinks: markdownRemark(
-      fileAbsolutePath: { regex: "/content/parts/footerLinks/" }
-    ) {
-      html
-    }
-    copyright: markdownRemark(
-      fileAbsolutePath: { regex: "/content/parts/copyright/" }
-    ) {
-      html
-    }
-  }
-`;
+}
