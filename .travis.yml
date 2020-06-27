@@ -14,8 +14,9 @@ jobs:
       script:
         - yarn run deploy
       deploy:
-        provider: script
+        provider: pages
         cleanup: true
         github_token: $GITHUB_TOKEN
+        local_dir: public
         on:
           branch: master
