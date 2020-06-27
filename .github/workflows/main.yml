@@ -24,6 +24,8 @@ jobs:
     
     - name: Gatsby Publish
       uses: enriikke/gatsby-gh-pages-action@v2.1.1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
 
     # Runs a single command using the runners shell
     - name: Run a one-line script
