@@ -1,0 +1,47 @@
+#include <esp_log.h>
+#include <esp_event.h>
+
+// JSON formatting
+#include <cJSON.h>
+
+// HTTP request
+#include <esp_tls.h>
+#include <esp_http_client.h>
+
+// project headers
+#include <http.hpp>
+
+#define HTTP_TAG "HTTP"
+
+esp_err_t LDM::HTTP::postJSON(cJSON *message) {
+    ESP_LOGI(HTTP_TAG, "Running post_json");
+    esp_err_t err = ESP_OK;
+
+    if(message != NULL){
+        char *post_data = cJSON_Print(message);
+
+        if(post_data != NULL){
+            ESP_LOGI(HTTP_TAG, "Sending JSON Message: %s", post_data);
+
+            esp_http_client_set_method(this->client, HTTP_METHOD_POST);
+            esp_http_client_set_header(this->client, "Content-Type", "application/json");
+            esp_http_client_set_post_field(this->client, post_data, strlen(post_data));
+
+            // post JSON message
+            err = esp_http_client_perform(this->client);
+            if (err == ESP_OK) {
+//                gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_PIN), 0);
+                ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
+                        esp_http_client_get_status_code(this->client),
+                        esp_http_client_get_content_length(this->client));
+            } else {
+//                gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_PIN), 1);
+                ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+            }
+
+            cJSON_free((void*)post_data);
+            post_data = NULL;
+        }
+    }
+    return err;
+}

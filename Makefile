@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := jacket_of_sleep
+PROJECT_NAME := nightgown
 
 include $(IDF_PATH)/make/project.mk
 

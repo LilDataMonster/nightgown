@@ -1,5 +1,6 @@
-idf_component_register(SRCS "power_save.c"
-                            "dht11.c"
-                            "http.c"
-                            "json.c"
+idf_component_register(SRCS "main.cpp"
+                            "http.cpp"
+                            "json.cpp"
+                            "tasks.cpp"
+                            "wifi.cpp"
                     INCLUDE_DIRS ".")

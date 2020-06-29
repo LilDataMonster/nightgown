@@ -7,13 +7,22 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <dht11.h>
-#include <http.h>
+#include <iostream>
+#include <dht11.hpp>
+//#include <http.hpp>
+
+#include <tasks.hpp>
+
+extern "C" {
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
+static LDM::DHT dht_sensor;
 
-void app_main(void)
-{
+void app_main(void);
+
+}
+
+void app_main(void) {
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -60,7 +69,7 @@ void app_main(void)
 //     ESP_ERROR_CHECK( esp_pm_configure(&pm_config) );
 // #endif // CONFIG_PM_ENABLE
 
-    xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
-    xTaskCreate(http_task, "http_task", 8192, NULL, 5, NULL);
-    // http_task(NULL);
+
+    xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
+    xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
 }

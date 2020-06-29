@@ -1,10 +1,11 @@
+#include "json.hpp"
+
 #include <stdint.h>
 #include <cJSON.h>
 
 // project header
-#include <json.h>
 
-cJSON *buildDHT11Json(int16_t temperature, int16_t humidity){
+cJSON *buildDHT11Json(float temperature, float humidity){
   cJSON *root;
 
   root = cJSON_CreateObject();
