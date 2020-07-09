@@ -70,26 +70,27 @@ void http_task(void *pvParameters) {
 
 	// setup wifi and http client
 	LDM::WiFi wifi;
-	LDM::HTTP http((char*)HTTP_POST_ENDPOINT);
+	LDM::HTTP http(const_cast<char*>(HTTP_POST_ENDPOINT));
+	// LDM::HTTP http("https://ldm-nodered.herokuapp.com/esp32");
 
-    // create JSON message
+  // create JSON message
 	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
 
 	wifi.init_sta();
-    cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+  cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
 
-    // POST
+  // POST
 	http.postJSON(message);
 
-    // cleanup JSON message
-    cJSON_Delete(message);
-    message = NULL;
+  // cleanup JSON message
+  cJSON_Delete(message);
+  message = NULL;
 
-    // vEventGroupDelete(s_wifi_event_group);
-    wifi.deinit_sta();
-    http.deinit();
+  // vEventGroupDelete(s_wifi_event_group);
+  wifi.deinit_sta();
+  http.deinit();
 
-    ESP_LOGI(HTTP_TASK_LOG, "Stopping WIFI");
-    ESP_LOGI(HTTP_TASK_LOG, "Entering Deep Sleep");
-    esp_deep_sleep(30 * 1E6);
+  ESP_LOGI(HTTP_TASK_LOG, "Stopping WIFI");
+  ESP_LOGI(HTTP_TASK_LOG, "Entering Deep Sleep");
+  esp_deep_sleep(30 * 1E6);
 }

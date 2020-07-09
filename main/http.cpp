@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <esp_log.h>
 #include <esp_event.h>
 
@@ -12,6 +13,15 @@
 #include <http.hpp>
 
 #define HTTP_TAG "HTTP"
+
+LDM::HTTP::HTTP(char* URL) {
+  // create http client
+  this->config = {
+      .url = URL,
+      .user_data = this->response_buffer,
+  };
+  this->client = esp_http_client_init(&this->config);
+}
 
 esp_err_t LDM::HTTP::postJSON(cJSON *message) {
     ESP_LOGI(HTTP_TAG, "Running post_json");

@@ -13,12 +13,7 @@
 namespace LDM {
 class HTTP {
 public:
-	HTTP(char* URL) {
-	    // create http client
-		config.url = URL;
-		config.user_data = this->response_buffer;
-	    this->client = esp_http_client_init(&config);
-	}
+	HTTP(char* URL);
 
 	esp_http_client_handle_t getClient() {
 		return this->client;
