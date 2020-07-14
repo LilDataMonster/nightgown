@@ -10,7 +10,7 @@ jobs:
       before_install:
         - docker pull espressif/idf
       install:
-        - git clone https://github.com/Kanaderu/esp-idf-lib $HOME/esp-lib
+        - git clone https://github.com/Kanaderu/esp-idf-lib $HOME/esp-idf-lib
       script:
         - ls $HOME/esp-idf-lib
         - >
