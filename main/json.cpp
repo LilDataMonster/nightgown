@@ -15,3 +15,15 @@ cJSON *buildDHT11Json(float temperature, float humidity){
 
   return root;
 }
+
+cJSON *buildBME680Json(float temperature, float humidity, float pressure, float gas){
+  cJSON *root;
+
+  root = cJSON_CreateObject();
+
+  cJSON_AddNumberToObject(root, "temperature", temperature);
+  cJSON_AddNumberToObject(root, "humidity", humidity);
+  cJSON_AddNumberToObject(root, "pressure", pressure);
+  cJSON_AddNumberToObject(root, "gas", gas);
+  return root;
+}

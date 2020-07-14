@@ -8,8 +8,12 @@
 // DHT sensor
 #include <dht.h>
 
+//BME680 sensor
+#include <bme680.h>
+
 // project headers
 #include <dht11.hpp>
+#include <bme680.hpp>
 #include <http.hpp>
 #include <json.hpp>
 #include <tasks.hpp>
@@ -17,7 +21,6 @@
 
 #define DHT_GPIO CONFIG_ESP_DHT11_GPIO
 static const gpio_num_t dht_gpio = static_cast<gpio_num_t>(DHT_GPIO);
-
 static const dht_sensor_type_t sensor_type = DHT_TYPE_DHT11;
 
 void dht_task(void *pvParameters) {
@@ -36,7 +39,7 @@ void dht_task(void *pvParameters) {
 			DHT_INFO("Humidity: %.2f, Temp: %.2fC", dht_sensor->getHumidity(), dht_sensor->getTemperature());
 		}
 		else {
-			DHT_INFO("Could not read data from sensor");
+			DHT_INFO("Could not read data from DHT11 sensor");
 		}
 
 		// If you read the sensor data too often, it will heat up
@@ -44,6 +47,72 @@ void dht_task(void *pvParameters) {
 		// vTaskDelay(2000 / portTICK_PERIOD_MS);
 		vTaskDelay(pdMS_TO_TICKS(10000));
 	}
+}
+
+#define I2C_SCL CONFIG_I2C_SCL
+static const gpio_num_t scl_gpio = static_cast<gpio_num_t>(DHT_GPIO);
+#define I2C_SDA CONFIG_I2C_SDA
+static const gpio_num_t sda_gpio = static_cast<gpio_num_t>(DHT_GPIO);
+#define I2C_PORT CONFIG_I2C_PORT
+static const gpio_num_t i2c_port_num = static_cast<gpio_num_t>(DHT_GPIO);
+#define ADDR BME680_I2C_ADDR_1
+
+void bme680_task(void *pvParameters) {
+    bme680_t sensor;
+    memset(&sensor, 0, sizeof(bme680_t));
+
+    ESP_ERROR_CHECK(bme680_init_desc(&sensor, ADDR, i2c_port_num, sda_gpio, scl_gpio));
+
+    // init the sensor
+    ESP_ERROR_CHECK(bme680_init_sensor(&sensor));
+
+    // Changes the oversampling rates to 4x oversampling for temperature
+    // and 2x oversampling for humidity. Pressure measurement is skipped.
+    bme680_set_oversampling_rates(&sensor, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
+
+    // Change the IIR filter size for temperature and pressure to 7.
+    bme680_set_filter_size(&sensor, BME680_IIR_SIZE_7);
+
+    // Change the heater profile 0 to 200 degree Celcius for 100 ms.
+    bme680_set_heater_profile(&sensor, 0, 200, 100);
+    bme680_use_heater_profile(&sensor, 0);
+
+    // Set ambient temperature to 10 degree Celsius
+    bme680_set_ambient_temperature(&sensor, 10);
+
+    // as long as sensor configuration isn't changed, duration is constant
+    uint32_t duration;
+    bme680_get_measurement_duration(&sensor, &duration);
+
+    TickType_t last_wakeup = xTaskGetTickCount();
+
+    bme680_values_float_t values;
+    int16_t temperature, humidity;
+	  LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
+    while (1)
+    {
+        // trigger the sensor to start one TPHG measurement cycle
+        if (bme680_force_measurement(&sensor) == ESP_OK)
+        {
+            // passive waiting until measurement results are available
+            vTaskDelay(duration);
+
+            // get the results and do something with them
+            if (bme680_get_results_float(&sensor, &values) == ESP_OK) {
+              bme680_sensor->setHumidity(values.humidity / 10.f);
+			        bme680_sensor->setTemperature(values.temperature / 10.f);
+              bme680_sensor->setPressure(values.pressure / 10.f);
+              bme680_sensor->setGas(values.gas_resistance / 10.f);
+              BME680_INFO("Humidity: %.2f, Temp: %.2fC, %.2f hPa, %.2f Ohm\n", 
+                  bme680_sensor->getHumidity(), bme680_sensor->getTemperature(), bme680_sensor->getPressure(), bme680_sensor->getGas());
+            } else {
+              BME680_INFO("Could not read data from BME680 sensor");
+            }
+        }
+	      vTaskDelay(pdMS_TO_TICKS(10000));
+    }
+
+
 }
 
 #define HTTP_POST_ENDPOINT CONFIG_ESP_POST_ENDPOINT
@@ -75,9 +144,11 @@ void http_task(void *pvParameters) {
 
   // create JSON message
 	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+  LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
 
 	wifi.init_sta();
-  cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+ // cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+  cJSON *message = buildBME680Json(bme680_sensor->getTemperature(), bme680_sensor->getHumidity(), bme680_sensor->getPressure(), bme680_sensor->getGas());
 
   // POST
 	http.postJSON(message);
