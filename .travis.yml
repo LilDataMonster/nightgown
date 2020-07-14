@@ -8,18 +8,13 @@ jobs:
       services:
         - docker
       before_install:
-        - docker pull espressif/idf # esp-idf docker build tools
+        - docker pull espressif/idf
       install:
-        - git clone https://github.com/Kanaderu/esp-idf-lib # esp-idf-lib sensor libraries
+        - git clone https://github.com/Kanaderu/esp-idf-lib $PWD/esp-lib
       script:
         - >
           docker run --rm
-          #-it
-          #--privileged \
-          #--device /dev/ttyUSB0:/dev/ttyUSB0 \
-          #--user $(id -u):$(id -g) \
           -e IDF_LIB_PATH=/esp-lib
-          -e LC_ALL=C.UTF-8
           -v $PWD/esp-idf-lib:/esp-lib
           -v $PWD:/project
           -w /project
