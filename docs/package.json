@@ -23,6 +23,6 @@
     "start": "gatsby develop",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "deploy": "gatsby build --prefix-paths public"
+    "deploy": "gatsby build --prefix-paths"
   }
 }
