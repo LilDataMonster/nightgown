@@ -14,6 +14,7 @@ jobs:
       script:
         - >
           docker run --rm
+          -e LC_ALL=C.UTF-8
           -e IDF_LIB_PATH=/esp-lib
           -v $PWD/esp-idf-lib:/esp-lib
           -v $PWD:/project
