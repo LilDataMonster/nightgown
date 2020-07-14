@@ -69,7 +69,11 @@ void app_main(void) {
 //     ESP_ERROR_CHECK( esp_pm_configure(&pm_config) );
 // #endif // CONFIG_PM_ENABLE
 
-
-    xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
+   // #if DHT11_ENABLE
+  //      xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
+    //#endif
+   // #if BME680_ENABLE
+        xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
+    //#endif
     xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
 }
