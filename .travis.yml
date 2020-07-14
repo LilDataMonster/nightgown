@@ -12,16 +12,17 @@ jobs:
       install:
         - git clone https://github.com/Kanaderu/esp-idf-lib # esp-idf-lib sensor libraries
       script:
-        - docker run --rm \
-          -it \
+        - >
+          docker run --rm
+          #-it
           #--privileged \
           #--device /dev/ttyUSB0:/dev/ttyUSB0 \
           #--user $(id -u):$(id -g) \
-          -e IDF_LIB_PATH=/esp-lib \
-          -e LC_ALL=C.UTF-8 \
-          -v $PWD/esp-idf-lib:/esp-lib \
-          -v $PWD:/project \
-          -w /project \
+          -e IDF_LIB_PATH=/esp-lib
+          -e LC_ALL=C.UTF-8
+          -v $PWD/esp-idf-lib:/esp-lib
+          -v $PWD:/project
+          -w /project
           espressif/idf idf.py -p /dev/ttyUSB0 build
 
     - stage: deployment
