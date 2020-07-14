@@ -5,8 +5,6 @@ jobs:
   include:
     - stage: build
       name: "Compile source with build tools"
-      env:
-        - IDF_LIB_PATH=$PWD/esp-idf-lib/
       services:
         - docker
       before_install:
