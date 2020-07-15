@@ -7,8 +7,10 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include <bme680.h>
 #include <iostream>
 #include <dht11.hpp>
+#include <bme680.hpp>
 //#include <http.hpp>
 
 #include <tasks.hpp>
@@ -17,6 +19,7 @@ extern "C" {
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
 static LDM::DHT dht_sensor;
+static LDM::BME680 bme680_sensor;
 
 void app_main(void);
 
@@ -73,7 +76,8 @@ void app_main(void) {
   //      xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
     //#endif
    // #if BME680_ENABLE
-        xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
+    ESP_ERROR_CHECK(i2cdev_init());
+    xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 8, (void*)&bme680_sensor, 5, NULL);
     //#endif
-    xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
+    xTaskCreate(http_task, "http_task", 8192, (void*)&bme680_sensor, 5, NULL);
 }
