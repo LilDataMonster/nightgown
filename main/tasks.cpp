@@ -1,7 +1,7 @@
 #include <esp_event.h>
 #include <esp_sleep.h>
 #include <esp_log.h>
-
+#include <esp_system.h>
 // JSON formatting
 #include <cJSON.h>
 
@@ -50,28 +50,35 @@ void dht_task(void *pvParameters) {
 }
 
 #define I2C_SCL CONFIG_I2C_SCL
-static const gpio_num_t scl_gpio = static_cast<gpio_num_t>(DHT_GPIO);
+static const gpio_num_t scl_gpio = static_cast<gpio_num_t>(I2C_SCL);
 #define I2C_SDA CONFIG_I2C_SDA
-static const gpio_num_t sda_gpio = static_cast<gpio_num_t>(DHT_GPIO);
+static const gpio_num_t sda_gpio = static_cast<gpio_num_t>(I2C_SDA);
 #define I2C_PORT CONFIG_I2C_PORT
-static const gpio_num_t i2c_port_num = static_cast<gpio_num_t>(DHT_GPIO);
+static const gpio_num_t i2c_port_num = static_cast<gpio_num_t>(I2C_PORT);
 #define ADDR BME680_I2C_ADDR_1
 
+/*
+#define SDA_GPIO 18
+#define SCL_GPIO 19
+#define PORT 0
+#define ADDR BME680_I2C_ADDR_1
+*/
 void bme680_task(void *pvParameters) {
     bme680_t sensor;
     memset(&sensor, 0, sizeof(bme680_t));
 
     ESP_ERROR_CHECK(bme680_init_desc(&sensor, ADDR, i2c_port_num, sda_gpio, scl_gpio));
+    //ESP_ERROR_CHECK(bme680_init_desc(&sensor, (gpio_num_t)ADDR, (gpio_num_t)PORT, (gpio_num_t)SDA_GPIO, (gpio_num_t)SCL_GPIO));
 
     // init the sensor
     ESP_ERROR_CHECK(bme680_init_sensor(&sensor));
 
     // Changes the oversampling rates to 4x oversampling for temperature
     // and 2x oversampling for humidity. Pressure measurement is skipped.
-    bme680_set_oversampling_rates(&sensor, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
+    bme680_set_oversampling_rates(&sensor, BME680_OSR_4X, BME680_OSR_4X, BME680_OSR_4X);
 
     // Change the IIR filter size for temperature and pressure to 7.
-    bme680_set_filter_size(&sensor, BME680_IIR_SIZE_7);
+    bme680_set_filter_size(&sensor, BME680_IIR_SIZE_3);
 
     // Change the heater profile 0 to 200 degree Celcius for 100 ms.
     bme680_set_heater_profile(&sensor, 0, 200, 100);
@@ -87,7 +94,7 @@ void bme680_task(void *pvParameters) {
     TickType_t last_wakeup = xTaskGetTickCount();
 
     bme680_values_float_t values;
-    int16_t temperature, humidity;
+    
 	  LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
     while (1)
     {
@@ -99,17 +106,21 @@ void bme680_task(void *pvParameters) {
 
             // get the results and do something with them
             if (bme680_get_results_float(&sensor, &values) == ESP_OK) {
-              bme680_sensor->setHumidity(values.humidity / 10.f);
-			        bme680_sensor->setTemperature(values.temperature / 10.f);
-              bme680_sensor->setPressure(values.pressure / 10.f);
-              bme680_sensor->setGas(values.gas_resistance / 10.f);
+              BME680_INFO("BME680 Sensor: %.2f °C, %.2f %%, %.2f hPa, %.2f Ohm\n",
+                        values.temperature, values.humidity, values.pressure, values.gas_resistance);
+              bme680_sensor->setHumidity(values.humidity);
+			        bme680_sensor->setTemperature(values.temperature);
+              bme680_sensor->setPressure(values.pressure);
+              bme680_sensor->setGas(values.gas_resistance);
               BME680_INFO("Humidity: %.2f, Temp: %.2fC, %.2f hPa, %.2f Ohm\n", 
                   bme680_sensor->getHumidity(), bme680_sensor->getTemperature(), bme680_sensor->getPressure(), bme680_sensor->getGas());
             } else {
               BME680_INFO("Could not read data from BME680 sensor");
             }
         }
-	      vTaskDelay(pdMS_TO_TICKS(10000));
+	              // passive waiting until 1 second is over
+                //vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelayUntil(&last_wakeup, 1000 / portTICK_PERIOD_MS);
     }
 
 
@@ -148,6 +159,7 @@ void http_task(void *pvParameters) {
 
 	wifi.init_sta();
  // cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+  vTaskDelay(pdMS_TO_TICKS(1000));
   cJSON *message = buildBME680Json(bme680_sensor->getTemperature(), bme680_sensor->getHumidity(), bme680_sensor->getPressure(), bme680_sensor->getGas());
 
   // POST
