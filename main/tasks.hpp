@@ -11,7 +11,10 @@ extern "C" {
 
 void dht_task(void *pvParameters);
 void http_task(void *pvParameters);
+
+#ifndef CONFIG_IDF_TARGET_ESP32S2
 void ble_task(void *pvParameters);
+#endif
 
 }
 

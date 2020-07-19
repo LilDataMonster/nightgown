@@ -1,5 +1,6 @@
 #ifndef __BLE_HPP__
 #define __BLE_HPP__
+#ifndef CONFIG_IDF_TARGET_ESP32S2
 
 #include <esp_err.h>
 #include <string>
@@ -57,4 +58,6 @@ private:
 
 };
 }
+
+#endif
 #endif

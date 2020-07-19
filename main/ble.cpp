@@ -5,6 +5,7 @@
 #include <esp_log.h>
 // #include <esp_event.h>
 
+#ifndef CONFIG_IDF_TARGET_ESP32S2
 #include <esp_bt.h>
 #include <esp_gap_ble_api.h>
 #include <esp_gatts_api.h>
@@ -292,3 +293,5 @@ void LDM::BLE::gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gat
         break;
     }
 }
+
+#endif

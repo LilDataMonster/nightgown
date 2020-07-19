@@ -72,5 +72,7 @@ void app_main(void) {
 
     xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
     xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
+#ifndef CONFIG_IDF_TARGET_ESP32S2
     xTaskCreate(ble_task, "ble_task", 8192, (void*)&dht_sensor, 5, NULL);
+#endif
 }

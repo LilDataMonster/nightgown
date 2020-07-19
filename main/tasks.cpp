@@ -99,6 +99,7 @@ void http_task(void *pvParameters) {
 	}
 }
 
+#ifndef CONFIG_IDF_TARGET_ESP32S2
 #define BLE_TASK_LOG "BLE_TASK"
 void ble_task(void *pvParameters) {
   ESP_LOGI(BLE_TASK_LOG, "Starting BLE");
@@ -116,3 +117,4 @@ void ble_task(void *pvParameters) {
 		ble.updateValue(humidity, temperature);
 	}
 }
+#endif
