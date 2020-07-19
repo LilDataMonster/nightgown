@@ -117,7 +117,7 @@ void sleep_task(void *pvParameters) {
 void ble_task(void *pvParameters) {
   ESP_LOGI(BLE_TASK_LOG, "Starting BLE");
 
-	LDM::BLE ble("DAVIDS Device");
+	LDM::BLE ble("Nightgown");
 	ble.init();
 	ble.setupCallback();
 
