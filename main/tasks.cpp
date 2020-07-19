@@ -16,6 +16,9 @@
 #include <wifi.hpp>
 #include <ble.hpp>
 
+#define SLEEP_DURATION CONFIG_SLEEP_DURATION
+#define BLE_ADVERTISE_DURATION CONFIG_BLE_ADVERTISE_DURATION
+
 // sleep task will go to sleep when messageFinished is true
 static bool messageFinished = false;
 
@@ -103,7 +106,7 @@ void sleep_task(void *pvParameters) {
 	while(true) {
 		if(messageFinished) {
 		  ESP_LOGI(SLEEP_TASK_LOG, "Entering Deep Sleep");
-		  esp_deep_sleep(30 * 1E6);
+		  esp_deep_sleep(SLEEP_DURATION * 1E6);
 		}
 		vTaskDelay(pdMS_TO_TICKS(500));
 	}
@@ -127,7 +130,7 @@ void ble_task(void *pvParameters) {
 	ble.updateValue(humidity, temperature);
 
 	// advertise BLE data for a while
-	vTaskDelay(pdMS_TO_TICKS(10000));
+	vTaskDelay(pdMS_TO_TICKS(BLE_ADVERTISE_DURATION * 1E3));
 	ble.deinit();
 
 	messageFinished = true;
