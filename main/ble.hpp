@@ -32,6 +32,7 @@ class BLE {
 public:
 	BLE(std::string deviceName);
   esp_err_t init();
+  esp_err_t deinit();
   esp_err_t setupCallback();
   esp_err_t updateValue(uint8_t humidity, uint8_t temperature);
 
@@ -50,11 +51,6 @@ private:
 	static esp_ble_adv_data_t scan_rsp_data;
 
 	static uint8_t adv_config_done;
-
-  // uint8_t raw_adv_data[32];
-  // uint8_t raw_scan_rsp_data[32];
-
-  // esp_ble_adv_params_t adv_params;
 
 };
 }

@@ -16,6 +16,9 @@
 #include <wifi.hpp>
 #include <ble.hpp>
 
+// sleep task will go to sleep when messageFinished is true
+static bool messageFinished = false;
+
 #define DHT_GPIO CONFIG_ESP_DHT11_GPIO
 static const gpio_num_t dht_gpio = static_cast<gpio_num_t>(DHT_GPIO);
 
@@ -91,11 +94,18 @@ void http_task(void *pvParameters) {
   wifi.deinit_sta();
   http.deinit();
 
-  ESP_LOGI(HTTP_TASK_LOG, "Stopping WIFI");
-  ESP_LOGI(HTTP_TASK_LOG, "Entering Deep Sleep");
-  // esp_deep_sleep(30 * 1E6);
-	while(true){
-		vTaskDelay(pdMS_TO_TICKS(10000));
+	messageFinished = true;
+	vTaskDelete(NULL);
+}
+
+#define SLEEP_TASK_LOG "SLEEP_TASK"
+void sleep_task(void *pvParameters) {
+	while(true) {
+		if(messageFinished) {
+		  ESP_LOGI(SLEEP_TASK_LOG, "Entering Deep Sleep");
+		  esp_deep_sleep(30 * 1E6);
+		}
+		vTaskDelay(pdMS_TO_TICKS(500));
 	}
 }
 
@@ -108,13 +118,20 @@ void ble_task(void *pvParameters) {
 	ble.init();
 	ble.setupCallback();
 
+	// get sensor data
 	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
-	while(true){
-		vTaskDelay(pdMS_TO_TICKS(10000));
-		uint8_t humidity = dht_sensor->getHumidity();
-		uint8_t temperature = dht_sensor->getTemperature();
-	  ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
-		ble.updateValue(humidity, temperature);
-	}
+
+	uint8_t humidity = dht_sensor->getHumidity();
+	uint8_t temperature = dht_sensor->getTemperature();
+  ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
+	ble.updateValue(humidity, temperature);
+
+	// advertise BLE data for a while
+	vTaskDelay(pdMS_TO_TICKS(10000));
+	ble.deinit();
+
+	messageFinished = true;
+	vTaskDelete(NULL);
+
 }
 #endif

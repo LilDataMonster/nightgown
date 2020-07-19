@@ -116,6 +116,21 @@ esp_err_t LDM::BLE::init() {
     return status;
 }
 
+esp_err_t LDM::BLE::deinit() {
+
+    esp_err_t status = esp_bluedroid_disable();
+    if(status) {
+        ESP_LOGE(BLE_TAG, "%s disable bluetooth failed: %s\n", __func__, esp_err_to_name(status));
+        return status;
+    }
+    status |= esp_bluedroid_deinit();
+    if(status) {
+        ESP_LOGE(BLE_TAG, "%s deinit bluetooth failed: %s\n", __func__, esp_err_to_name(status));
+        return status;
+    }
+    return status;
+}
+
 esp_err_t LDM::BLE::setupCallback() {
 
     esp_err_t status = esp_ble_gatts_register_callback(gatts_event_handler);
