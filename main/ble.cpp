@@ -11,9 +11,6 @@
 #include <esp_bt_defs.h>
 #include <esp_bt_main.h>
 
-// JSON formatting
-#include <cJSON.h>
-
 // project headers
 #include <ble.hpp>
 
@@ -26,7 +23,7 @@
 #define scan_rsp_config_flag (1 << 1)
 
 uint8_t LDM::BLE::manufacturer_data[MANUFACTURER_DATA_LEN] =  {
-  0xAA, 0xBB, 0xFF, 0xEE, 0x01, 0x02, 0x03, 0x04,
+  'T', 'H', 0x00, 0x00,// 0x01, 0x02, 0x03, 0x04,
 };
 
 // define static member variables
@@ -144,32 +141,17 @@ esp_err_t LDM::BLE::updateValue(uint8_t humidity, uint8_t temperature) {
     LDM::BLE::manufacturer_data[3] = humidity;
 
     // refresh advertising data
-    esp_err_t ret = esp_ble_gap_config_adv_data(&adv_data);
-    if (ret){
-        ESP_LOGE(GATTS_TAG, "config adv data failed, error code = %x", ret);
+    esp_err_t status = esp_ble_gap_config_adv_data(&adv_data);
+    if(status){
+        ESP_LOGE(GATTS_TAG, "config adv data failed, error code = %x", status);
     }
     // adv_config_done |= adv_config_flag;
     //config scan response data
-    ret = esp_ble_gap_config_adv_data(&scan_rsp_data);
-    if (ret){
-        ESP_LOGE(GATTS_TAG, "config scan response data failed, error code = %x", ret);
+    status = esp_ble_gap_config_adv_data(&scan_rsp_data);
+    if (status){
+        ESP_LOGE(GATTS_TAG, "config scan response data failed, error code = %x", status);
     }
-
-    // raw_adv_data[2]++;
-    // // raw_adv_data[2] = data;
-    // ESP_LOGI(GATTS_TAG, "New Value: %x", (uint)raw_adv_data[2]);
-    //
-    // esp_err_t raw_adv_ret = esp_ble_gap_config_adv_data_raw(raw_adv_data, sizeof(raw_adv_data));
-    // if(raw_adv_ret){
-    //     ESP_LOGE(GATTS_TAG, "config raw adv data failed, error code = %x ", raw_adv_ret);
-    // }
-    // adv_config_done |= adv_config_flag;
-    // esp_err_t status = esp_ble_gap_config_scan_rsp_data_raw(raw_scan_rsp_data, sizeof(raw_scan_rsp_data));
-    // if(status){
-    //     ESP_LOGE(GATTS_TAG, "config raw scan rsp data failed, error code = %x", status);
-    // }
-    // return status;
-    return 0;
+    return status;
 }
 
 void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
@@ -187,20 +169,6 @@ void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
     };
 
     switch (event) {
-// #ifdef CONFIG_SET_RAW_ADV_DATA
-//     case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
-//         adv_config_done &= (~adv_config_flag);
-//         if(adv_config_done==0){
-//             esp_ble_gap_start_advertising(&adv_params);
-//         }
-//         break;
-//     case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
-//         adv_config_done &= (~scan_rsp_config_flag);
-//         if(adv_config_done==0){
-//             esp_ble_gap_start_advertising(&adv_params);
-//         }
-//         break;
-// #else
     case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
         adv_config_done &= (~adv_config_flag);
         if(adv_config_done == 0){
@@ -213,7 +181,6 @@ void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
             esp_ble_gap_start_advertising(&adv_params);
         }
         break;
-// #endif
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
         if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
