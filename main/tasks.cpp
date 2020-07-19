@@ -14,6 +14,13 @@
 #include <json.hpp>
 #include <tasks.hpp>
 #include <wifi.hpp>
+#include <ble.hpp>
+
+#define SLEEP_DURATION CONFIG_SLEEP_DURATION
+#define BLE_ADVERTISE_DURATION CONFIG_BLE_ADVERTISE_DURATION
+
+// sleep task will go to sleep when messageFinished is true
+static bool messageFinished = false;
 
 #define DHT_GPIO CONFIG_ESP_DHT11_GPIO
 static const gpio_num_t dht_gpio = static_cast<gpio_num_t>(DHT_GPIO);
@@ -29,7 +36,7 @@ void dht_task(void *pvParameters) {
 	int16_t temperature, humidity;
 	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
 
-	while(1){
+	while(true){
 		if(dht_read_data(sensor_type, dht_gpio, &humidity, &temperature) == ESP_OK) {
 			dht_sensor->setHumidity(humidity / 10.f);
 			dht_sensor->setTemperature(temperature / 10.f);
@@ -90,7 +97,44 @@ void http_task(void *pvParameters) {
   wifi.deinit_sta();
   http.deinit();
 
-  ESP_LOGI(HTTP_TASK_LOG, "Stopping WIFI");
-  ESP_LOGI(HTTP_TASK_LOG, "Entering Deep Sleep");
-  esp_deep_sleep(30 * 1E6);
+	messageFinished = true;
+	vTaskDelete(NULL);
 }
+
+#define SLEEP_TASK_LOG "SLEEP_TASK"
+void sleep_task(void *pvParameters) {
+	while(true) {
+		if(messageFinished) {
+		  ESP_LOGI(SLEEP_TASK_LOG, "Entering Deep Sleep");
+		  esp_deep_sleep(SLEEP_DURATION * 1E6);
+		}
+		vTaskDelay(pdMS_TO_TICKS(500));
+	}
+}
+
+#ifndef CONFIG_IDF_TARGET_ESP32S2
+#define BLE_TASK_LOG "BLE_TASK"
+void ble_task(void *pvParameters) {
+  ESP_LOGI(BLE_TASK_LOG, "Starting BLE");
+
+	LDM::BLE ble("Nightgown");
+	ble.init();
+	ble.setupCallback();
+
+	// get sensor data
+	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+
+	uint8_t humidity = dht_sensor->getHumidity();
+	uint8_t temperature = dht_sensor->getTemperature();
+  ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
+	ble.updateValue(humidity, temperature);
+
+	// advertise BLE data for a while
+	vTaskDelay(pdMS_TO_TICKS(BLE_ADVERTISE_DURATION * 1E3));
+	ble.deinit();
+
+	messageFinished = true;
+	vTaskDelete(NULL);
+
+}
+#endif
