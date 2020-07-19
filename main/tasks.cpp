@@ -14,6 +14,7 @@
 #include <json.hpp>
 #include <tasks.hpp>
 #include <wifi.hpp>
+#include <ble.hpp>
 
 #define DHT_GPIO CONFIG_ESP_DHT11_GPIO
 static const gpio_num_t dht_gpio = static_cast<gpio_num_t>(DHT_GPIO);
@@ -29,7 +30,7 @@ void dht_task(void *pvParameters) {
 	int16_t temperature, humidity;
 	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
 
-	while(1){
+	while(true){
 		if(dht_read_data(sensor_type, dht_gpio, &humidity, &temperature) == ESP_OK) {
 			dht_sensor->setHumidity(humidity / 10.f);
 			dht_sensor->setTemperature(temperature / 10.f);
@@ -92,5 +93,26 @@ void http_task(void *pvParameters) {
 
   ESP_LOGI(HTTP_TASK_LOG, "Stopping WIFI");
   ESP_LOGI(HTTP_TASK_LOG, "Entering Deep Sleep");
-  esp_deep_sleep(30 * 1E6);
+  // esp_deep_sleep(30 * 1E6);
+	while(true){
+		vTaskDelay(pdMS_TO_TICKS(10000));
+	}
+}
+
+#define BLE_TASK_LOG "BLE_TASK"
+void ble_task(void *pvParameters) {
+  ESP_LOGI(BLE_TASK_LOG, "Starting BLE");
+
+	LDM::BLE ble("DAVIDS Device");
+	ble.init();
+	ble.setupCallback();
+
+	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+	while(true){
+		vTaskDelay(pdMS_TO_TICKS(10000));
+		uint8_t humidity = dht_sensor->getHumidity();
+		uint8_t temperature = dht_sensor->getTemperature();
+	  ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
+		ble.updateValue(humidity, temperature);
+	}
 }

@@ -11,6 +11,7 @@ extern "C" {
 
 void dht_task(void *pvParameters);
 void http_task(void *pvParameters);
+void ble_task(void *pvParameters);
 
 }
 
