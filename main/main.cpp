@@ -116,7 +116,7 @@ void app_main(void) {
 
 
     xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
-    xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE, NULL, 5, NULL);
+    xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
 #ifndef CONFIG_IDF_TARGET_ESP32S2
     if(broadcast % 2 == 0) {
         xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
