@@ -6,11 +6,9 @@
 #include <nvs_flash.h>
 #include <time.h>
 #include <sys/time.h>
-
 #include <iostream>
-#include <dht11.hpp>
-//#include <http.hpp>
 
+#include <dht11.hpp>
 #include <tasks.hpp>
 
 #define APP_TAG "NIGHTGOWN"
@@ -27,7 +25,7 @@ void app_main(void);
 void app_main(void) {
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if(ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
@@ -37,15 +35,15 @@ void app_main(void) {
     struct timeval now;
     gettimeofday(&now, NULL);
     const int sleep_time_ms = (now.tv_sec - sleep_enter_time.tv_sec) * 1000 + (now.tv_usec - sleep_enter_time.tv_usec) / 1000;
-    switch (esp_sleep_get_wakeup_cause()) {
+    switch(esp_sleep_get_wakeup_cause()) {
         case ESP_SLEEP_WAKEUP_TIMER: {
             ESP_LOGI(APP_TAG, "Wake up from timer. Time spent in deep sleep: %dms", sleep_time_ms);
             break;
         }
-      	case ESP_SLEEP_WAKEUP_ULP: {
+        case ESP_SLEEP_WAKEUP_ULP: {
             ESP_LOGI(APP_TAG, "ESP_SLEEP_WAKEUP_ULP");
-        		break;
-      	}
+            break;
+        }
         case ESP_SLEEP_WAKEUP_UNDEFINED: {
             ESP_LOGI(APP_TAG, "Wakeup was not caused by deep sleep");
             break;
@@ -121,9 +119,9 @@ void app_main(void) {
     xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE, NULL, 5, NULL);
 #ifndef CONFIG_IDF_TARGET_ESP32S2
     if(broadcast % 2 == 0) {
-      xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
+        xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
     } else {
-      xTaskCreate(ble_task, "ble_task", 8192, (void*)&dht_sensor, 5, NULL);
+        xTaskCreate(ble_task, "ble_task", 8192, (void*)&dht_sensor, 5, NULL);
     }
 #else
     xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);

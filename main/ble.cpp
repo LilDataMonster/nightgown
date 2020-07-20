@@ -3,7 +3,6 @@
 #include <cstring>
 
 #include <esp_log.h>
-// #include <esp_event.h>
 
 #ifndef CONFIG_IDF_TARGET_ESP32S2
 #include <esp_bt.h>
@@ -24,7 +23,7 @@
 #define scan_rsp_config_flag (1 << 1)
 
 uint8_t LDM::BLE::manufacturer_data[MANUFACTURER_DATA_LEN] =  {
-  'T', 'H', 0x00, 0x00,// 0x01, 0x02, 0x03, 0x04,
+    'T', 'H', 0x00, 0x00,// 0x01, 0x02, 0x03, 0x04,
 };
 
 // define static member variables
@@ -101,7 +100,7 @@ LDM::BLE::BLE(std::string deviceName) {
     }
 }
 
-esp_err_t LDM::BLE::init() {
+esp_err_t LDM::BLE::init(void) {
 
     esp_err_t status = esp_bluedroid_init();
     if(status) {
@@ -116,7 +115,7 @@ esp_err_t LDM::BLE::init() {
     return status;
 }
 
-esp_err_t LDM::BLE::deinit() {
+esp_err_t LDM::BLE::deinit(void) {
 
     esp_err_t status = esp_bluedroid_disable();
     if(status) {
@@ -131,7 +130,7 @@ esp_err_t LDM::BLE::deinit() {
     return status;
 }
 
-esp_err_t LDM::BLE::setupCallback() {
+esp_err_t LDM::BLE::setupCallback(void) {
 
     esp_err_t status = esp_ble_gatts_register_callback(gatts_event_handler);
     if(status){
@@ -164,15 +163,13 @@ esp_err_t LDM::BLE::updateValue(uint8_t humidity, uint8_t temperature) {
     // adv_config_done |= adv_config_flag;
     //config scan response data
     status = esp_ble_gap_config_adv_data(&scan_rsp_data);
-    if (status){
+    if(status){
         ESP_LOGE(GATTS_TAG, "config scan response data failed, error code = %x", status);
     }
     return status;
 }
 
 void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
-    // uint8_t adv_config_done = 0;
-
     esp_ble_adv_params_t adv_params = {
         .adv_int_min        = 0x20,
         .adv_int_max        = 0x40,
@@ -199,7 +196,7 @@ void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
         break;
     case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
         //advertising start complete event to indicate advertising start successfully or failed
-        if (param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
+        if(param->adv_start_cmpl.status != ESP_BT_STATUS_SUCCESS) {
             ESP_LOGE(GATTS_TAG, "Advertising start failed\n");
         }
         break;
@@ -211,13 +208,13 @@ void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
         }
         break;
     case ESP_GAP_BLE_UPDATE_CONN_PARAMS_EVT:
-         ESP_LOGI(GATTS_TAG, "update connection params status = %d, min_int = %d, max_int = %d,conn_int = %d,latency = %d, timeout = %d",
-                  param->update_conn_params.status,
-                  param->update_conn_params.min_int,
-                  param->update_conn_params.max_int,
-                  param->update_conn_params.conn_int,
-                  param->update_conn_params.latency,
-                  param->update_conn_params.timeout);
+        ESP_LOGI(GATTS_TAG, "update connection params status = %d, min_int = %d, max_int = %d,conn_int = %d,latency = %d, timeout = %d",
+            param->update_conn_params.status,
+            param->update_conn_params.min_int,
+            param->update_conn_params.max_int,
+            param->update_conn_params.conn_int,
+            param->update_conn_params.latency,
+            param->update_conn_params.timeout);
         break;
     default:
         break;
@@ -226,13 +223,13 @@ void LDM::BLE::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_pa
 
 void LDM::BLE::gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     /* If event is register event, store the gatts_if for each profile */
-    if (event == ESP_GATTS_REG_EVT) {
-        if (param->reg.status == ESP_GATT_OK) {
+    if(event == ESP_GATTS_REG_EVT) {
+        if(param->reg.status == ESP_GATT_OK) {
             gl_profile_tab[param->reg.app_id].gatts_if = gatts_if;
         } else {
             ESP_LOGI(GATTS_TAG, "Reg app failed, app_id %04x, status %d\n",
-                    param->reg.app_id,
-                    param->reg.status);
+                param->reg.app_id,
+                param->reg.status);
             return;
         }
     }
@@ -241,10 +238,10 @@ void LDM::BLE::gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gat
      * so here call each profile's callback */
     do {
         int idx;
-        for (idx = 0; idx < PROFILE_NUM; idx++) {
-            if (gatts_if == ESP_GATT_IF_NONE || /* ESP_GATT_IF_NONE, not specify a certain gatt_if, need to call every profile cb function */
+        for(idx = 0; idx < PROFILE_NUM; idx++) {
+            if(gatts_if == ESP_GATT_IF_NONE || /* ESP_GATT_IF_NONE, not specify a certain gatt_if, need to call every profile cb function */
                     gatts_if == gl_profile_tab[idx].gatts_if) {
-                if (gl_profile_tab[idx].gatts_cb) {
+                if(gl_profile_tab[idx].gatts_cb) {
                     gl_profile_tab[idx].gatts_cb(event, gatts_if, param);
                 }
             }
@@ -264,22 +261,20 @@ void LDM::BLE::gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gat
 
         ESP_LOGI(GATTS_TAG, "Setting Device Name: %s", device_name.c_str());
         esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name(device_name.c_str());
-        if (set_dev_name_ret){
+        if(set_dev_name_ret){
             ESP_LOGE(GATTS_TAG, "set device name failed, error code = %x", set_dev_name_ret);
         }
 
         //config adv data
         esp_err_t ret = esp_ble_gap_config_adv_data(&adv_data);
-        if (ret){
+        if(ret){
             ESP_LOGE(GATTS_TAG, "config adv data failed, error code = %x", ret);
         }
-        // adv_config_done |= adv_config_flag;
         //config scan response data
         ret = esp_ble_gap_config_adv_data(&scan_rsp_data);
-        if (ret){
+        if(ret){
             ESP_LOGE(GATTS_TAG, "config scan response data failed, error code = %x", ret);
         }
-        // adv_config_done |= scan_rsp_config_flag;
 
         // esp_ble_gatts_create_service(gatts_if, &gl_profile_tab[PROFILE_A_APP_ID].service_id, GATTS_NUM_HANDLE_TEST_A);
         break;
@@ -308,5 +303,4 @@ void LDM::BLE::gatts_profile_a_event_handler(esp_gatts_cb_event_t event, esp_gat
         break;
     }
 }
-
 #endif

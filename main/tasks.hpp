@@ -1,5 +1,5 @@
-#ifndef TASKS_H
-#define TASKS_H
+#ifndef __TASKS_HPP__
+#define __TASKS_HPP__
 
 #include <esp_log.h>
 
@@ -18,5 +18,4 @@ void ble_task(void *pvParameters);
 #endif
 
 }
-
 #endif

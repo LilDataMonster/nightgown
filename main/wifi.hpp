@@ -10,11 +10,12 @@ extern "C" {
 namespace LDM {
 class WiFi {
 public:
-	WiFi() {};
-	esp_err_t init_sta(void);
-	esp_err_t deinit_sta(void);
+    WiFi() {};
+    esp_err_t init_sta(void);
+    esp_err_t deinit_sta(void);
+
 private:
-	static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+    static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
 };
 }
 }
