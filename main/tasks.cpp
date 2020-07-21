@@ -8,8 +8,6 @@
 
 // project headers
 #include <sensor.hpp>
-#include <dht11.hpp>
-#include <bme680.hpp>
 #include <http.hpp>
 #include <tasks.hpp>
 #include <wifi.hpp>

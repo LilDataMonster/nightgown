@@ -120,16 +120,10 @@ void app_main(void) {
 //     ESP_ERROR_CHECK( esp_pm_configure(&pm_config) );
 // #endif // CONFIG_PM_ENABLE
 
-#if CONFIG_DHT11_SENSOR_ENABLED
-    ESP_LOGI(APP_TAG, "DHT11 Sensor Enabled");
-#endif
-
-#if CONFIG_BME680_SENSOR_ENABLED
-    ESP_LOGI(APP_TAG, "BME680 Sensor Enabled");
-#endif
-
+    // setup sensor to perform readings
     xTaskCreate(sensor_task, "sensor_task", configMINIMAL_STACK_SIZE * 8, (void*)&sensor, 5, NULL);
 
+    // setup broadcasting method
 #ifndef CONFIG_IDF_TARGET_ESP32S2
     if(broadcast % 2 == 0) {
         xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
@@ -140,5 +134,6 @@ void app_main(void) {
     xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
 #endif
 
+    // setup watcher for sleep
     xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
 }
