@@ -21,7 +21,13 @@
 // sleep task will go to sleep when messageFinished is true
 static bool messageFinished = false;
 
+#define SENSOR_TASK_LOG "SENSOR_TASK"
 void sensor_task(void *pvParameters) {
+
+    if(pvParameters == NULL) {
+        ESP_LOGE(SENSOR_TASK_LOG, "Invalid Sensor Recieved");
+        return;
+    }
 
     LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
     while(true){
@@ -55,6 +61,11 @@ void http_task(void *pvParameters) {
     // gpio_config(&io_conf);
     //
     // gpio_set_level(GPIO_OUTPUT_PIN, 1);
+
+    if(pvParameters == NULL) {
+        ESP_LOGE(HTTP_TASK_LOG, "Invalid Sensor Recieved");
+        return;
+    }
 
     // setup wifi and http client
     LDM::WiFi wifi;

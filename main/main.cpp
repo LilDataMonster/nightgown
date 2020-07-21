@@ -16,11 +16,11 @@
 extern "C" {
 
 #if CONFIG_DHT11_SENSOR_ENABLED
-LDM::DHT sensor;
+static LDM::DHT sensor;
 #endif
 
 #if CONFIG_BME680_SENSOR_ENABLED
-LDM::BME680 sensor;
+static LDM::BME680 sensor;
 #endif
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
@@ -132,12 +132,12 @@ void app_main(void) {
 
 #ifndef CONFIG_IDF_TARGET_ESP32S2
     if(broadcast % 2 == 0) {
-        xTaskCreate(http_task, "http_task", 8192, NULL, 5, NULL);
+        xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
     } else {
         xTaskCreate(ble_task, "ble_task", 8192*2, NULL, 5, NULL);
     }
 #else
-    xTaskCreate(http_task, "http_task", 8192, NULL, 5, NULL);
+    xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
 #endif
 
     xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);

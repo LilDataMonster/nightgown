@@ -6,14 +6,11 @@
 namespace LDM {
 class Sensor {
 public:
-    virtual bool init() = 0;
-    virtual bool deinit() = 0;
-    virtual bool readSensor() = 0;
-    virtual cJSON *buildJson() = 0;
-
-// private:
-//     float temperature;
-//     float humidity;
+    // sensors must implement the following functions
+    virtual bool init(void) = 0;
+    virtual bool deinit(void) = 0;
+    virtual bool readSensor(void) = 0;
+    virtual cJSON *buildJson(void) = 0;
 };
 }
 
