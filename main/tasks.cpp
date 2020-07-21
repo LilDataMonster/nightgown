@@ -22,7 +22,18 @@
 
 #define SLEEP_DURATION CONFIG_SLEEP_DURATION
 #define BLE_ADVERTISE_DURATION CONFIG_BLE_ADVERTISE_DURATION
+int dht_en, bme680_en = 0;
+#if CONFIG_DHT11_SENSOR_ENABLED
+    dht11_en = 1;
+#elif CONFIG_DHT11_SENSOR_DISABLED
+    dht11_en = 0;
+#endif
 
+#if CONFIG_BME680_SENSOR_ENABLED
+    bme680_en = 1;
+#elif CONFIG_BME680_SENSOR_DISABLED
+    bme680_en = 0;
+#endif
 // sleep task will go to sleep when messageFinished is true
 static bool messageFinished = false;
 
@@ -102,7 +113,7 @@ void bme680_task(void *pvParameters) {
 
     bme680_values_float_t values;
     
-	  LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
+	LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
     while (1)
     {
         // trigger the sensor to start one TPHG measurement cycle
@@ -160,10 +171,16 @@ void http_task(void *pvParameters) {
     LDM::HTTP http(const_cast<char*>(HTTP_POST_ENDPOINT));
 
     // create JSON message
-    LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
-
+    if(dht_en)
+        LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+    if(bme680_en)
+        LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
     wifi.init_sta();
-    cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+    
+    if(dht_en)
+        cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+    if(bme680_en)
+        cJSON *message = buildBME680Json(bme680_sensor->getTemperature(), bme680_sensor->getHumidity(), bme680_sensor->getPressure(), bme680_sensor->getGas());
 
     // POST
     http.postJSON(message);
@@ -191,14 +208,6 @@ void sleep_task(void *pvParameters) {
     }
 }
 
-  // create JSON message
-	LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
-  LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
-
-	wifi.init_sta();
- // cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
-  vTaskDelay(pdMS_TO_TICKS(1000));
-  cJSON *message = buildBME680Json(bme680_sensor->getTemperature(), bme680_sensor->getHumidity(), bme680_sensor->getPressure(), bme680_sensor->getGas());
 #ifndef CONFIG_IDF_TARGET_ESP32S2
 #define BLE_TASK_LOG "BLE_TASK"
 void ble_task(void *pvParameters) {
@@ -209,12 +218,23 @@ void ble_task(void *pvParameters) {
     ble.setupCallback();
 
     // get sensor data
-    LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+    if(dht_en)
+        LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+        uint8_t humidity = dht_sensor->getHumidity();
+        uint8_t temperature = dht_sensor->getTemperature();
+        ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
+        ble.updateValueDHT(humidity, temperature);
 
-    uint8_t humidity = dht_sensor->getHumidity();
-    uint8_t temperature = dht_sensor->getTemperature();
-    ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
-    ble.updateValue(humidity, temperature);
+    if(bme680_en)
+        LDM::BME680* bme680_sensor = (LDM::BME680*)pvParameters;
+        uint8_t humidity = bme680_sensor->getHumidity();
+        uint8_t temperature = bme680_sensor->getTemperature();
+        uint8_t pressure = bme680_sensor->getPressure();
+        uint8_t gas = bme680_sensor->getGas();
+        ESP_LOGI(BLE_TASK_LOG, "Humidity: %.2f, Temp: %.2fC, %.2f hPa, %.2f Ohm\n", 
+                  humidity, temperature, pressure, gas);
+        ble.updateValueBME(humidity, temperature, pressure, gas);
+
 
     // advertise BLE data for a while
     vTaskDelay(pdMS_TO_TICKS(BLE_ADVERTISE_DURATION * 1E3));

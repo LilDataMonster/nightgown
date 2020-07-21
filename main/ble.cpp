@@ -151,9 +151,29 @@ esp_err_t LDM::BLE::setupCallback(void) {
     return status;
 }
 
-esp_err_t LDM::BLE::updateValue(uint8_t humidity, uint8_t temperature) {
+esp_err_t LDM::BLE::updateValueDHT(uint8_t humidity, uint8_t temperature) {
     LDM::BLE::manufacturer_data[2] = temperature;
     LDM::BLE::manufacturer_data[3] = humidity;
+
+    // refresh advertising data
+    esp_err_t status = esp_ble_gap_config_adv_data(&adv_data);
+    if(status){
+        ESP_LOGE(GATTS_TAG, "config adv data failed, error code = %x", status);
+    }
+    // adv_config_done |= adv_config_flag;
+    //config scan response data
+    status = esp_ble_gap_config_adv_data(&scan_rsp_data);
+    if(status){
+        ESP_LOGE(GATTS_TAG, "config scan response data failed, error code = %x", status);
+    }
+    return status;
+}
+
+esp_err_t LDM::BLE::updateValueBME(uint8_t humidity, uint8_t temperature, uint8_t pressure, uint8_t gas) {
+    LDM::BLE::manufacturer_data[2] = temperature;
+    LDM::BLE::manufacturer_data[3] = humidity;
+    LDM::BLE::manufacturer_data[4] = pressure;
+    LDM::BLE::manufacturer_data[5] = gas;
 
     // refresh advertising data
     esp_err_t status = esp_ble_gap_config_adv_data(&adv_data);

@@ -34,7 +34,8 @@ public:
     esp_err_t init(void);
     esp_err_t deinit(void);
     esp_err_t setupCallback(void);
-    esp_err_t updateValue(uint8_t humidity, uint8_t temperature);
+    esp_err_t updateValueDHT(uint8_t humidity, uint8_t temperature);
+    esp_err_t updateValueBME(uint8_t humidity, uint8_t temperature);
 
 private:
     static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
