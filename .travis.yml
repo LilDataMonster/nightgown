@@ -28,7 +28,7 @@ jobs:
           -v $PWD:/project
           -w /project
           espressif/idf idf.py -p /dev/ttyUSB0 build
-    - name: "Compile source with build tools with DHT11 for ESP32-S2"
+      name: "Compile source with build tools with DHT11 for ESP32-S2"
       services:
         - docker
       before_install:
