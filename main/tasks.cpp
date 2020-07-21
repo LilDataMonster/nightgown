@@ -11,7 +11,6 @@
 #include <dht11.hpp>
 #include <bme680.hpp>
 #include <http.hpp>
-#include <json.hpp>
 #include <tasks.hpp>
 #include <wifi.hpp>
 #include <ble.hpp>
