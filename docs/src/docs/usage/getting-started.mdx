@@ -6,9 +6,29 @@ metaDescription: 'Getting Started'
 
 ## Introduction
 
-The documented setup here is used get a developer up and running quickly implement and deploy The Loch Sense Monster software stack onto a device.
+The documented setup here is used get a developer up and running quickly implement and deploy the Nightgown software stack onto a device. There are two setup methods to build and flash the ESP32 device which are listed below. The docker setup is the quickest method to setup the device if the user is fairly familiar with docker containers.
 
-## Dependency Setup
+1. [Docker Setup](#docker-setup)
+2. [Manual Setup](#manual-setup)
+
+Setting up the device in either methods requires performing the following steps:
+
+- Clone external library (used for interfacing with sensors)
+- Set target device (ESP32 or ESP32S2)
+- Configure device using `menuconfig`
+- Build, flash, and read device output (optional)
+
+---
+
+## Docker Setup
+
+The docker configuration has primarily been tested using a linux OS.
+
+---
+
+## Manual Setup
+
+### Dependency Setup
 
 Dependencies are required in order to compile and target the device.
 
@@ -42,7 +62,7 @@ source $IDF_PATH/exort.sh
 export IDF_LIB_PATH=$BUILD_ENV/esp-idf-lib
 ```
 
-## Set Target Device
+### Set Target Device
 
 Before configuration of the build, setting a device target must be done to indicate what chip is being targeted for the build. The primary two options are the `ESP32` and the `ESP32-S2` device. ESP8266 is not officially supported but will likely work as well.
 
@@ -58,7 +78,7 @@ For ESP32-S2 devices, run the following:
 idf.py set-target esp32s2
 ```
 
-## Configuration
+### Configuration
 
 Configuration parameters can be defined using the ESP-IDF configuration menu by executing the following commands and modify custom project configurations within the menu.
 
@@ -79,7 +99,7 @@ The `Monster Configuration` menu defines several parameters used for the softwar
 | DHT11 GPIO Pin       | GPIO pin to read the DHT11 sensor |
 | HTTP POST Endpoint   | HTTP endpoint to post data |
 
-## Build and Compile
+### Build and Compile
 
 Building and compiling the code will begin creating the required binaries for the build and store them in the `build/` folder.
 
@@ -89,7 +109,7 @@ To begin building the code run:
 idf.py build
 ```
 
-## Flash and Monitor
+### Flash and Monitor
 
 To flash the build, find the serial location of the device on the host machine (`/dev/ttyUSB0` in this case) and run the `flash` command. Use the `monitor` command to read the serial output of the device. The baudrate is defined in the menu options discussed prior.
 
