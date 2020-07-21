@@ -24,9 +24,9 @@
 #define BLE_ADVERTISE_DURATION CONFIG_BLE_ADVERTISE_DURATION
 int dht_en, bme680_en = 0;
 #if CONFIG_DHT11_SENSOR_ENABLED
-    dht11_en = 1;
+    dht_en = 1;
 #elif CONFIG_DHT11_SENSOR_DISABLED
-    dht11_en = 0;
+    dht_en = 0;
 #endif
 
 #if CONFIG_BME680_SENSOR_ENABLED
