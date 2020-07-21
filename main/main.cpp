@@ -166,5 +166,5 @@ xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NUL
       if(bme680) {
         xTaskCreate(http_task, "http_task", 8192, (void*)&bme680_sensor, 8, NULL);
       }
-
+#endif
 }
