@@ -1,4 +1,7 @@
+#include <esp_log.h>
 #include <cJSON.h>
+
+#if CONFIG_DHT11_SENSOR_ENABLED
 
 // DHT sensor
 #include <dht.h>
@@ -6,7 +9,10 @@
 // project headers
 #include <dht11.hpp>
 
-#if CONFIG_DHT11_SENSOR_ENABLED
+#define DHT_TAG "DHT_SENSOR"
+#define DHT_INFO(fmt, ...)   ESP_LOGI(DHT_TAG, fmt, ##__VA_ARGS__)
+#define DHT_ERROR(fmt, ...)  ESP_LOGE(DHT_TAG, fmt, ##__VA_ARGS__)
+
 LDM::DHT::DHT() : temperature(0), humidity(0) {
 
 };
@@ -16,10 +22,11 @@ bool LDM::DHT::init(void) {
     // pull-up resistors on the data pin.  It is recommended
     // to provide an external pull-up resistor otherwise...
     gpio_set_pull_mode(dht_gpio, GPIO_PULLUP_ONLY);
+    return true;
 };
 
 bool LDM::DHT::deinit(void) {
-
+    return true;
 };
 
 bool LDM::DHT::readSensor(void) {
@@ -28,9 +35,11 @@ bool LDM::DHT::readSensor(void) {
         this->setHumidity(humidity / 10.f);
         this->setTemperature(temperature / 10.f);
         DHT_INFO("Humidity: %.2f, Temp: %.2fC", this->getHumidity(), this->getTemperature());
+        return true;
     }
     else {
         DHT_INFO("Could not read data from sensor");
+        return false;
     }
 };
 
@@ -42,7 +51,7 @@ cJSON* LDM::DHT::buildJson(void) {
     return root;
 };
 
-float LDM::DHT:getHumidity(void) {
+float LDM::DHT::getHumidity(void) {
     return this->humidity;
 };
 

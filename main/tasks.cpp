@@ -23,7 +23,7 @@ static bool messageFinished = false;
 
 void sensor_task(void *pvParameters) {
 
-    LDM::Sensor* sensor = (LDM::Sensor*)pvParameters;
+    LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
     while(true){
         sensor->readSensor();
 
@@ -63,7 +63,7 @@ void http_task(void *pvParameters) {
     wifi.init_sta();
 
     // create JSON message
-    LDM::Sensor sensor = (LDM::Sensor*)pvParameters;
+    LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
     cJSON *message = sensor->buildJson();
 
     // POST

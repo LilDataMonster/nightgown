@@ -128,7 +128,7 @@ void app_main(void) {
     ESP_LOGI(APP_TAG, "BME680 Sensor Enabled");
 #endif
 
-    xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 8, (void*)&sensor, 5, NULL);
+    xTaskCreate(sensor_task, "sensor_task", configMINIMAL_STACK_SIZE * 8, (void*)&sensor, 5, NULL);
 
 #ifndef CONFIG_IDF_TARGET_ESP32S2
     if(broadcast % 2 == 0) {

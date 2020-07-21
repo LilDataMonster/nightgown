@@ -1,10 +1,13 @@
 #ifndef __BME680_HPP__
 #define __BME680_HPP__
 
+#if CONFIG_BME680_SENSOR_ENABLED
+
 #include <cJSON.h>
 #include <sensor.hpp>
 
-#if CONFIG_BME680_SENSOR_ENABLED
+//BME680 sensor
+#include <bme680.h>
 
 #define I2C_SCL CONFIG_I2C_SCL
 #define I2C_SDA CONFIG_I2C_SDA
@@ -35,9 +38,15 @@ private:
     int pressure;
     int gas;
 
-    const gpio_num_t scl_gpio = I2C_SCL;
-    const gpio_num_t sda_gpio = I2C_SDA;
-    const gpio_num_t i2c_port_num = I2C_PORT;
+    bme680_t sensor;
+    uint32_t duration;
+
+    static const gpio_num_t scl_gpio = static_cast<gpio_num_t>(I2C_SCL);
+    static const gpio_num_t sda_gpio = static_cast<gpio_num_t>(I2C_SDA);
+    static const gpio_num_t i2c_port_num = static_cast<gpio_num_t>(I2C_PORT);
+    // const gpio_num_t scl_gpio = const_cast<gpio_num_t>(I2C_SCL);
+    // const gpio_num_t sda_gpio = const_cast<gpio_num_t>(I2C_SDA);
+    // const gpio_num_t i2c_port_num = const_cast<gpio_num_t>(I2C_PORT);
 };
 }
 #endif
