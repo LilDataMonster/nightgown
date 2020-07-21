@@ -22,7 +22,27 @@ Setting up the device in either methods requires performing the following steps:
 
 ## Docker Setup
 
-The docker configuration has primarily been tested using a linux OS.
+The docker configuration has primarily been tested using a linux OS. The main convenience of using docker is not having the need to install the expressif framework manually, instead the build tools are within a docker container which can be pulled from DockerHub and exposing the device to the container as necessary.
+
+### Dependency Setup
+
+The following dependencies are required in order to compile and target the device.
+
+- ESP-IDF-LIB
+  - https://esp-idf-lib.readthedocs.io/en/latest/
+
+```bash
+# define location to store dependencies
+export WORKSPACE=$HOME
+
+# clone dependencies
+cd $WORKSPACE
+git clone https://github.com/UncleRus/esp-idf-lib.git
+
+# clone the project
+git clone https://github.com/LilDataMonster/nightgown.git
+cd nightgown
+```
 
 ---
 
@@ -30,7 +50,7 @@ The docker configuration has primarily been tested using a linux OS.
 
 ### Dependency Setup
 
-Dependencies are required in order to compile and target the device.
+The following dependencies are required in order to compile and target the device.
 
 - ESP-IDF
   - https://docs.espressif.com/projects/esp-idf/en/latest/esp32/
@@ -38,31 +58,49 @@ Dependencies are required in order to compile and target the device.
 - ESP-IDF-LIB
   - https://esp-idf-lib.readthedocs.io/en/latest/
 
-To setup the development environment, the ESP-IDF environment variables must be set:
+To setup the development environment, the espressif build tools must be installed (see espressif's [Getting Started](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) page). The ESP-IDF environment variables must be set:
 
-| Environment Variable | Description      |
-|----------------------|------------------|
-|`IDF_PATH`            | ESP-IDF path     |
-|`IDF_LIB_PATH`        | ESP-IDF-LIB path |
+| Environment Variable | Description                                   |
+|----------------------|-----------------------------------------------|
+|`IDF_PATH`            | ESP-IDF path for the espressif build tools    |
+|`IDF_LIB_PATH`        | ESP-IDF-LIB path of the external library      |
 
 ```bash
 # define location to store dependencies
-export BUILD_ENV=$HOME
+export WORKSPACE=$HOME
 
 # clone dependencies
-cd $BUILD_ENV
+cd $WORKSPACE
 git clone https://github.com/espressif/esp-idf.git
 git clone https://github.com/UncleRus/esp-idf-lib.git
 
 # setup environment variables
-export IDF_PATH=$BUILD_ENV/esp-idf
+export IDF_PATH=$WORKSPACE/esp-idf
 source $IDF_PATH/add_path.sh
 source $IDF_PATH/exort.sh
 
-export IDF_LIB_PATH=$BUILD_ENV/esp-idf-lib
+export IDF_LIB_PATH=$WORKSPACE/esp-idf-lib
+
+# clone the project
+git clone https://github.com/LilDataMonster/nightgown.git
+cd nightgown
 ```
 
-### Set Target Device
+### Pull Build Tools
+
+Use the following command to pull the espressif build tools from DockerHub. Espressif documentation can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-docker-image.html).
+
+```bash
+docker pull espressif/idf
+```
+
+---
+
+# Flashing the Device
+
+Flashing the device can be done using the following steps. The setup is the same for both Docker and the manual setup.
+
+## Set Target Device
 
 Before configuration of the build, setting a device target must be done to indicate what chip is being targeted for the build. The primary two options are the `ESP32` and the `ESP32-S2` device. ESP8266 is not officially supported but will likely work as well.
 
@@ -78,13 +116,35 @@ For ESP32-S2 devices, run the following:
 idf.py set-target esp32s2
 ```
 
-### Configuration
+## Configuration
 
 Configuration parameters can be defined using the ESP-IDF configuration menu by executing the following commands and modify custom project configurations within the menu.
 
 ```bash
 idf.py menuconfig
 ```
+
+## Build and Compile
+
+Building and compiling the code will begin creating the required binaries for the build and store them in the `build/` folder.
+
+To begin building the code run:
+
+```bash
+idf.py build
+```
+
+## Flash and Monitor
+
+To flash the build, find the serial location of the device on the host machine (`/dev/ttyUSB0` in this case) and run the `flash` command. Use the `monitor` command to read the serial output of the device. The baudrate is defined in the menu options discussed prior.
+
+```bash
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+---
+
+## Menu Configuration Options (`idf.py menuconfig`)
 
 The `Monster Configuration` menu defines several parameters used for the software stack.
 
@@ -99,20 +159,4 @@ The `Monster Configuration` menu defines several parameters used for the softwar
 | DHT11 GPIO Pin       | GPIO pin to read the DHT11 sensor |
 | HTTP POST Endpoint   | HTTP endpoint to post data |
 
-### Build and Compile
-
-Building and compiling the code will begin creating the required binaries for the build and store them in the `build/` folder.
-
-To begin building the code run:
-
-```bash
-idf.py build
-```
-
-### Flash and Monitor
-
-To flash the build, find the serial location of the device on the host machine (`/dev/ttyUSB0` in this case) and run the `flash` command. Use the `monitor` command to read the serial output of the device. The baudrate is defined in the menu options discussed prior.
-
-```bash
-idf.py -p /dev/ttyUSB0 flash monitor
-```
+---
