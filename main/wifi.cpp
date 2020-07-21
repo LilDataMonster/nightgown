@@ -14,17 +14,16 @@
 
 #define WIFI_TAG "WIFI"
 
-/*set the ssid and password via "idf.py menuconfig"*/
-#define DEFAULT_SSID CONFIG_EXAMPLE_WIFI_SSID
-#define DEFAULT_PWD CONFIG_EXAMPLE_WIFI_PASSWORD
+#define DEFAULT_SSID CONFIG_WIFI_SSID
+#define DEFAULT_PWD CONFIG_WIFI_PASSWORD
 
-#define DEFAULT_LISTEN_INTERVAL CONFIG_EXAMPLE_WIFI_LISTEN_INTERVAL
+#define DEFAULT_LISTEN_INTERVAL CONFIG_WIFI_LISTEN_INTERVAL
 
-#if CONFIG_EXAMPLE_POWER_SAVE_MIN_MODEM
+#if CONFIG_POWER_SAVE_MIN_MODEM
 #define DEFAULT_PS_MODE WIFI_PS_MIN_MODEM
-#elif CONFIG_EXAMPLE_POWER_SAVE_MAX_MODEM
+#elif CONFIG_POWER_SAVE_MAX_MODEM
 #define DEFAULT_PS_MODE WIFI_PS_MAX_MODEM
-#elif CONFIG_EXAMPLE_POWER_SAVE_NONE
+#elif CONFIG_POWER_SAVE_NONE
 #define DEFAULT_PS_MODE WIFI_PS_NONE
 #else
 #define DEFAULT_PS_MODE WIFI_PS_NONE
@@ -42,14 +41,13 @@
 static EventGroupHandle_t s_wifi_event_group;
 static int s_retry_num = 0;
 
-void LDM::WiFi::event_handler(void* arg, esp_event_base_t event_base,
-                                int32_t event_id, void* event_data) {
+void LDM::WiFi::event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
     if(event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         ESP_LOGI(WIFI_TAG, "Attempting to connect to AP");
         esp_wifi_connect();
     } else if(event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-         esp_wifi_connect();
-        if (s_retry_num < MAX_RETRY) {
+        esp_wifi_connect();
+        if(s_retry_num < MAX_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(WIFI_TAG, "Retrying to connect to the AP");
@@ -89,7 +87,7 @@ esp_err_t LDM::WiFi::init_sta(void) {
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    /*init wifi as sta and set power save mode*/
+    /* init wifi as sta and set power save mode */
     ESP_LOGI(WIFI_TAG, "esp_wifi_set_ps().");
     esp_wifi_set_ps(DEFAULT_PS_MODE);
 
@@ -99,18 +97,18 @@ esp_err_t LDM::WiFi::init_sta(void) {
      * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
     ESP_LOGI(WIFI_TAG, "Waiting for event bits");
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-            pdFALSE,
-            pdFALSE,
-            portMAX_DELAY);
+        WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+        pdFALSE,
+        pdFALSE,
+        portMAX_DELAY);
 
     /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually happened. */
-    if (bits & WIFI_CONNECTED_BIT) {
+    if(bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(WIFI_TAG, "Connected to AP SSID:%s password:%s",
-                 DEFAULT_SSID, DEFAULT_PWD);
-    } else if (bits & WIFI_FAIL_BIT) {
+            DEFAULT_SSID, DEFAULT_PWD);
+    } else if(bits & WIFI_FAIL_BIT) {
         ESP_LOGE(WIFI_TAG, "Failed to connect to SSID:%s, password:%s",
-                 DEFAULT_SSID, DEFAULT_PWD);
+            DEFAULT_SSID, DEFAULT_PWD);
         ret_value = ESP_FAIL;
     } else {
         ESP_LOGE(WIFI_TAG, "UNEXPECTED EVENT");
