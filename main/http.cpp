@@ -15,12 +15,12 @@
 #define HTTP_TAG "HTTP"
 
 LDM::HTTP::HTTP(char* URL) {
-  // create http client
-  this->config = {
-      .url = URL,
-      .user_data = this->response_buffer,
-  };
-  this->client = esp_http_client_init(&this->config);
+    // create http client
+    this->config = {
+        .url = URL,
+        .user_data = this->response_buffer,
+    };
+    this->client = esp_http_client_init(&this->config);
 }
 
 esp_err_t LDM::HTTP::postJSON(cJSON *message) {
@@ -40,15 +40,12 @@ esp_err_t LDM::HTTP::postJSON(cJSON *message) {
             // post JSON message
             err = esp_http_client_perform(this->client);
             if (err == ESP_OK) {
-//                gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_PIN), 0);
                 ESP_LOGI(HTTP_TAG, "HTTP POST Status = %d, content_length = %d",
                         esp_http_client_get_status_code(this->client),
                         esp_http_client_get_content_length(this->client));
             } else {
-//                gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_PIN), 1);
                 ESP_LOGE(HTTP_TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
             }
-
             cJSON_free((void*)post_data);
             post_data = NULL;
         }

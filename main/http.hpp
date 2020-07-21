@@ -13,25 +13,19 @@
 namespace LDM {
 class HTTP {
 public:
-	HTTP(char* URL);
-
-	esp_http_client_handle_t getClient() {
-		return this->client;
-	}
-
-	esp_err_t postJSON(cJSON *message);
-
-	esp_err_t deinit() {
-	    return esp_http_client_cleanup(this->client);
-	}
-
+    HTTP(char* URL);
+    esp_http_client_handle_t getClient(void) {
+        return this->client;
+    }
+    esp_err_t postJSON(cJSON *message);
+    esp_err_t deinit(void) {
+        return esp_http_client_cleanup(this->client);
+    }
 
 private:
     char response_buffer[MAX_HTTP_OUTPUT_BUFFER];
     esp_http_client_config_t config;
     esp_http_client_handle_t client;
-
 };
 }
-
 #endif
