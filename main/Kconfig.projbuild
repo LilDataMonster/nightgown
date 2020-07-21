@@ -120,4 +120,20 @@ menu "Monster Configuration"
         help
             URL endpoint for the POST message.
 
+
+    choice DHT11_SENSOR_MENU
+        prompt "DHT11 Sensor"
+        config DHT11_SENSOR_ENABLED
+            bool "DHT11 Enabled"
+        config DHT11_SENSOR_DISABLED
+            bool "DHT11 Disabled"
+    endchoice
+
+    choice BME680_SENSOR_MENU
+        prompt "BME680 Sensor"
+        config BME680_SENSOR_ENABLED
+            bool "BME680 Enabled"
+        config BME680_SENSOR_DISABLED
+            bool "BME680 Disabled"
+    endchoice
 endmenu

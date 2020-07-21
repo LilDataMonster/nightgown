@@ -15,6 +15,8 @@
 
 #include <tasks.hpp>
 
+
+
 extern "C" {
 
 static RTC_DATA_ATTR struct timeval sleep_enter_time;
@@ -72,12 +74,30 @@ void app_main(void) {
 //     ESP_ERROR_CHECK( esp_pm_configure(&pm_config) );
 // #endif // CONFIG_PM_ENABLE
 
-   // #if DHT11_ENABLE
-  //      xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
-    //#endif
-   // #if BME680_ENABLE
-    ESP_ERROR_CHECK(i2cdev_init());
-    xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 8, (void*)&bme680_sensor, 5, NULL);
-    //#endif
-    xTaskCreate(http_task, "http_task", 8192, (void*)&bme680_sensor, 5, NULL);
+int dht11, bme680 = 0;
+#if CONFIG_DHT11_SENSOR_ENABLED
+    dht11 = 1;
+#elif CONFIG_DHT11_SENSOR_DISABLED
+    dht11 = 0;
+#endif
+
+#if CONFIG_BME680_SENSOR_ENABLED
+    bme680 = 1;
+#elif CONFIG_BME680_SENSOR_DISABLED
+    bme680 = 0;
+#endif
+
+    if (dht11) {
+        printf("DHT11 Sensor Enabled \n");
+        xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
+        xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
+    }
+    if (bme680) {
+        printf("BME680 Sensor Enabled \n");
+        ESP_ERROR_CHECK(i2cdev_init());
+        xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 8, (void*)&bme680_sensor, 5, NULL);
+        xTaskCreate(http_task, "http_task", 8192, (void*)&bme680_sensor, 5, NULL);
+        
+    }
+    
 }
