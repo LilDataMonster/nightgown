@@ -15,7 +15,7 @@ Setting up the device in either methods requires performing the following steps:
 
 - Clone external library (used for interfacing with sensors)
 - Set target device (ESP32 or ESP32S2)
-- Configure device using `menuconfig`
+- Configure device using `idf.py menuconfig` (configuration options described [here](#menu-configuration-options-idfpy-menuconfig))
 - Build, flash, and read device output (optional)
 
 ---
@@ -43,6 +43,47 @@ git clone https://github.com/UncleRus/esp-idf-lib.git
 git clone https://github.com/LilDataMonster/nightgown.git
 cd nightgown
 ```
+
+### Pull Build Tools
+
+Use the following command to pull the espressif build tools from DockerHub. Espressif documentation can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-docker-image.html).
+
+```bash
+docker pull espressif/idf
+```
+
+### Running and Exposing the Container
+
+The container enables the use of a ready-made `idf.py` command but only within the docker container. Since the host does not have direct access to the container, specific pathways into the docker container will need to be exposed for it to be used. A short description of what each docker argument does is provided in the proceeding table. For more information about docker arguments and parameters, checkout the [Docker Reference Documentation](https://docs.docker.com/reference/).
+
+To expose the container to the host, a number of arguments are provided to docker:
+
+```bash
+docker run \
+        -it \
+        --rm \
+        --privileged \
+        --device /dev/ttyUSB0:/dev/ttyUSB0 \
+        -e LC_ALL=C.UTF-8 \
+        -e IDF_LIB_PATH=/esp-lib \
+        -v $WORKSPACE/esp-idf-lib:/esp-lib \
+        -v $WORKSPACE/nightgown:/project \
+        -w /project \
+        espressif/idf idf.py
+```
+
+| Docker Argument                 | Description                                                                                    |
+|---------------------------------|------------------------------------------------------------------------------------------------|
+| `-it`                           | Interactive mode, mainly for using with `menuconfig`                                           |
+| `--rm`                          | WiFi Password to connect to AP with                                                            |
+| `--privileged`                  | Run as root to avoid permission issues (not particularly needed if permissions setup properly) |
+| `--device <host>:<container>`   | Map the device from the host path to a path in the container                                   |
+| `-e Key=Value`                  | Defines environment variables within the container                                             |
+| `-v <host>:<container>`         | Maps a directory from the host to a path in the container                                      |
+| `-w <container path>`           | Set working directory of container's path                                                      |
+
+
+Once the environment is setup, the steps from [Flashing the Device](#flashing-the-device) can be performed.
 
 ---
 
@@ -86,19 +127,29 @@ git clone https://github.com/LilDataMonster/nightgown.git
 cd nightgown
 ```
 
-### Pull Build Tools
-
-Use the following command to pull the espressif build tools from DockerHub. Espressif documentation can be found [here](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-docker-image.html).
-
-```bash
-docker pull espressif/idf
-```
+Once the environment is setup, the steps from [Flashing the Device](#flashing-the-device) can be performed.
 
 ---
 
 # Flashing the Device
 
-Flashing the device can be done using the following steps. The setup is the same for both Docker and the manual setup.
+Flashing the device can be done using the following steps. The setup is the same for both Docker and the manual setup using the `idf.py` command. In the docker setup, the full `docker run` command must be used with all the appropriate arguments followed by `espressif/idf idf.py` and the corresponding commands below.
+
+For example, to run the commands detailed in [Flash and Monitor](#flash-and-monitor), use the following:
+
+```bash
+docker run \
+        -it \
+        --rm \
+        --privileged \
+        --device /dev/ttyUSB0:/dev/ttyUSB0 \
+        -e LC_ALL=C.UTF-8 \
+        -e IDF_LIB_PATH=/esp-lib \
+        -v $WORKSPACE/esp-idf-lib:/esp-lib \
+        -v $WORKSPACE/nightgown:/project \
+        -w /project \
+        espressif/idf idf.py flash monitor
+```
 
 ## Set Target Device
 
