@@ -75,7 +75,7 @@ docker run \
 | Docker Argument                 | Description                                                                                    |
 |---------------------------------|------------------------------------------------------------------------------------------------|
 | `-it`                           | Interactive mode, mainly for using with `menuconfig`                                           |
-| `--rm`                          | WiFi Password to connect to AP with                                                            |
+| `--rm`                          | Remove the container when finished running the command                                         |
 | `--privileged`                  | Run as root to avoid permission issues (not particularly needed if permissions setup properly) |
 | `--device <host>:<container>`   | Map the device from the host path to a path in the container                                   |
 | `-e Key=Value`                  | Defines environment variables within the container                                             |
@@ -148,12 +148,12 @@ docker run \
         -v $WORKSPACE/esp-idf-lib:/esp-lib \
         -v $WORKSPACE/nightgown:/project \
         -w /project \
-        espressif/idf idf.py flash monitor
+        espressif/idf idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
 ## Set Target Device
 
-Before configuration of the build, setting a device target must be done to indicate what chip is being targeted for the build. The primary two options are the `ESP32` and the `ESP32-S2` device. ESP8266 is not officially supported but will likely work as well.
+Before configuration of the build, setting a device target must be done to indicate what chip is being targeted for the build. The primary two options are the `ESP32` and the `ESP32-S2` device.
 
 To set the target device, run the following for the ESP32:
 
