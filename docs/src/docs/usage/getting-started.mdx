@@ -112,13 +112,15 @@ export WORKSPACE=$HOME
 
 # clone dependencies
 cd $WORKSPACE
-git clone https://github.com/espressif/esp-idf.git
+git clone https://github.com/espressif/esp-idf.git --recursive
 git clone https://github.com/UncleRus/esp-idf-lib.git
 
 # setup environment variables
 export IDF_PATH=$WORKSPACE/esp-idf
+
+bash $IDF_PATH/install.sh
 source $IDF_PATH/add_path.sh
-source $IDF_PATH/exort.sh
+source $IDF_PATH/export.sh
 
 export IDF_LIB_PATH=$WORKSPACE/esp-idf-lib
 
