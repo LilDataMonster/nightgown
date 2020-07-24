@@ -28,6 +28,13 @@ void sensor_task(void *pvParameters) {
     }
 
     LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
+    
+    // initialize sensor
+    if(!sensor->init()) {
+        ESP_LOGE(SENSOR_TASK_LOG, "Failed to initialize sensor");
+        return;
+    }
+    
     while(true){
         sensor->readSensor();
 
