@@ -27,8 +27,11 @@ LDM::OTA::OTA(char* URL) {
 
 esp_err_t LDM::OTA::checkUpdates(bool restartOnSuccess) {
     esp_err_t ret = esp_https_ota(&config);
-    if(ret == ESP_OK && restartOnSuccess) {
-        esp_restart();
+    if(ret == ESP_OK) {
+        ESP_LOGI(TAG, "Firmware upgrade success, restart to apply update");
+        if(restartOnSuccess) {
+            esp_restart();
+        }
     } else {
         ESP_LOGE(TAG, "Firmware upgrade failed");
     }
