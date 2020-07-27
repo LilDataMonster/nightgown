@@ -117,4 +117,28 @@ menu "Monster Configuration"
         help
             Advertising BLE Duration in seconds.
 
+
+    menu "OTA Updates"
+
+        config OTA_ENABLED
+            bool "Enable OTA Updates"
+            default n
+            help
+                Enables OTA Updates.
+
+        config FIRMWARE_UPGRADE_ENDPOINT
+            depends on OTA_ENABLED
+            string "Firmware Upgrade URL Endpoint"
+            default "https://ota.lildata.monster:5000/firmware/hello-world.bin"
+            help
+                URL of server which hosts the firmware image.
+
+        config SKIP_COMMON_NAME_CHECK
+            depends on OTA_ENABLED
+            bool "Skip Server Certificate CN Fieldcheck"
+            default n
+            help
+                Skip the validation of OTA server certificate CN field.
+    endmenu
+
 endmenu
