@@ -7,13 +7,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <bme680.h>
-#include <iostream>
-#include <dht11.hpp>
 #include <bme680.hpp>
-//#include <http.hpp>
-#include <iostream>
-
 #include <dht11.hpp>
 #include <tasks.hpp>
 
@@ -21,10 +15,15 @@
 
 extern "C" {
 
-static RTC_DATA_ATTR struct timeval sleep_enter_time;
-static LDM::DHT dht_sensor;
-static LDM::BME680 bme680_sensor;
+#if CONFIG_DHT11_SENSOR_ENABLED
+static LDM::DHT sensor;
+#endif
 
+#if CONFIG_BME680_SENSOR_ENABLED
+static LDM::BME680 sensor;
+#endif
+
+static RTC_DATA_ATTR struct timeval sleep_enter_time;
 void app_main(void);
 
 }
@@ -121,50 +120,20 @@ void app_main(void) {
 //     ESP_ERROR_CHECK( esp_pm_configure(&pm_config) );
 // #endif // CONFIG_PM_ENABLE
 
-int dht11, bme680 = 0;
-#if CONFIG_DHT11_SENSOR_ENABLED
-    dht11 = 1;
-#elif CONFIG_DHT11_SENSOR_DISABLED
-    dht11 = 0;
-#endif
+    // setup sensor to perform readings
+    xTaskCreate(sensor_task, "sensor_task", configMINIMAL_STACK_SIZE * 8, (void*)&sensor, 5, NULL);
 
-#if CONFIG_BME680_SENSOR_ENABLED
-    bme680 = 1;
-#elif CONFIG_BME680_SENSOR_DISABLED
-    bme680 = 0;
-#endif
-if (dht11) {
-    printf("DHT11 Sensor Enabled \n");
-    xTaskCreate(dht_task, "dht_task", configMINIMAL_STACK_SIZE * 3, (void*)&dht_sensor, 5, NULL);
-}
-if (bme680) {
-    printf("BME680 Sensor Enabled \n");
-    ESP_ERROR_CHECK(i2cdev_init());
-    xTaskCreate(bme680_task, "bme680_task", configMINIMAL_STACK_SIZE * 8, (void*)&bme680_sensor, 5, NULL);
-}
-xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
+    // setup broadcasting method
 #ifndef CONFIG_IDF_TARGET_ESP32S2
     if(broadcast % 2 == 0) {
-        if(dht11){
-          xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
-        }
-        if(bme680) {
-          xTaskCreate(http_task, "http_task", 8192, (void*)&bme680_sensor, 8, NULL);
-        }
+        xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
     } else {
-        if(dht11){
-          xTaskCreate(ble_task, "ble_task", 8192, (void*)&dht_sensor, 5, NULL);        
-        }
-        if(bme680) {
-          xTaskCreate(ble_task, "ble_task", 8192, (void*)&bme680_sensor, 8, NULL);
-        }
+        xTaskCreate(ble_task, "ble_task", 8192*2, NULL, 5, NULL);
     }
 #else
-      if(dht11){
-        xTaskCreate(http_task, "http_task", 8192, (void*)&dht_sensor, 5, NULL);
-      }
-      if(bme680) {
-        xTaskCreate(http_task, "http_task", 8192, (void*)&bme680_sensor, 8, NULL);
-      }
+    xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
 #endif
+
+    // setup watcher for sleep
+    xTaskCreate(sleep_task, "sleep_task", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
 }
