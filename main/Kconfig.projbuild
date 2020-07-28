@@ -1,27 +1,71 @@
 menu "Monster Configuration"
 
-    config WIFI_SSID
-        string "WiFi SSID"
-        default "WIFI_SSID"
-        help
-            SSID (network name) for the example to connect to.
+    menu "WiFi Configuration"
 
-    config WIFI_PASSWORD
-        string "WiFi Password"
-        default "WIFI_PASSWORD"
-        help
-            WiFi password (WPA or WPA2) for the example to use.
+        config WIFI_SSID
+            string "WiFi SSID"
+            default "WIFI_SSID"
+            help
+                SSID (network name) for the example to connect to.
 
-    config WIFI_LISTEN_INTERVAL
-        int "WiFi listen interval"
-        default 3
-        help
-            Interval for station to listen to beacon from AP. The unit of listen interval is one beacon interval.
-            For example, if beacon interval is 100 ms and listen interval is 3, the interval for station to listen
-            to beacon is 300 ms.
+        config WIFI_PASSWORD
+            string "WiFi Password"
+            default "WIFI_PASSWORD"
+            help
+                WiFi password (WPA or WPA2) for the example to use.
+
+        config WIFI_LISTEN_INTERVAL
+            int "WiFi listen interval"
+            default 3
+            help
+                Interval for station to listen to beacon from AP. The unit of listen interval is one beacon interval.
+                For example, if beacon interval is 100 ms and listen interval is 3, the interval for station to listen
+                to beacon is 300 ms.
+
+    endmenu
+
+    menu "Sensor Configuration"
+
+        choice SENSOR_MENU
+        prompt "Enable Sensor"
+        config DHT11_SENSOR_ENABLED
+            bool "DHT11 Enabled"
+        config BME680_SENSOR_ENABLED
+            bool "BME680 Enabled"
+        endchoice
+
+        config ESP_DHT11_GPIO
+            int "DHT11 GPIO Pin"
+            depends on DHT11_SENSOR_ENABLED
+            default 4
+            help
+                GPIO Pin to read the DHT11 sensor.
+
+        config I2C_SCL
+            int "I2C SCL GPIO Pin"
+            depends on BME680_SENSOR_ENABLED
+            default 19
+            help
+                SCL Pin to read I2C.
+
+        config I2C_SDA
+            int "I2C SDA GPIO Pin"
+            depends on BME680_SENSOR_ENABLED
+            default 18
+            help
+                SDA Pin to read I2C.
+
+        config I2C_PORT
+            int "I2C PORT"
+            depends on BME680_SENSOR_ENABLED
+            default 0
+            help
+                Port to read I2C.
+
+    endmenu
 
     choice POWER_SAVE_MODE
-        prompt "power save mode"
+        prompt "Power Save Mode"
         default POWER_SAVE_MIN_MODEM
         help
             Power save mode for the esp32 to use. Modem sleep mode includes minimum and maximum power save modes.
@@ -41,7 +85,7 @@ menu "Monster Configuration"
     endchoice
 
     choice MAX_CPU_FREQ
-        prompt "Maximum CPU frequency"
+        prompt "Maximum CPU Frequency"
         default MAX_CPU_FREQ_80
         help
             Maximum CPU frequency to use for dynamic frequency scaling.
@@ -62,7 +106,7 @@ menu "Monster Configuration"
 
 
     choice MIN_CPU_FREQ
-        prompt "Minimum CPU frequency"
+        prompt "Minimum CPU Frequency"
         default MIN_CPU_FREQ_10M
         help
             Minimum CPU frequency to use for dynamic frequency scaling.
@@ -93,12 +137,6 @@ menu "Monster Configuration"
         default 26 if MIN_CPU_FREQ_26M
         default 13 if MIN_CPU_FREQ_13M
 
-    config ESP_DHT11_GPIO
-        int "DHT11 GPIO Pin"
-        default 4
-        help
-            GPIO Pin to read the DHT11 sensor.
-
     config ESP_POST_ENDPOINT
         string "HTTP POST Endpoint"
         default "https://ldm-nodered.herokuapp.com/esp32"
@@ -106,7 +144,7 @@ menu "Monster Configuration"
             URL endpoint for the POST message.
 
     config SLEEP_DURATION
-        int "Sleep Duration (seconds)"
+        int "Deep Sleep Duration (seconds)"
         default 30
         help
             Deep sleep duration in seconds.

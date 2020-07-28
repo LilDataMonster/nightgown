@@ -1,17 +1,14 @@
 #include <esp_event.h>
 #include <esp_sleep.h>
 #include <esp_log.h>
+#include <esp_system.h>
 
 // JSON formatting
 #include <cJSON.h>
 
-// DHT sensor
-#include <dht.h>
-
 // project headers
-#include <dht11.hpp>
+#include <sensor.hpp>
 #include <http.hpp>
-#include <json.hpp>
 #include <tasks.hpp>
 #include <wifi.hpp>
 #include <ble.hpp>
@@ -23,28 +20,24 @@
 // sleep task will go to sleep when messageFinished is true
 static bool messageFinished = false;
 
-#define DHT_GPIO CONFIG_ESP_DHT11_GPIO
-static const gpio_num_t dht_gpio = static_cast<gpio_num_t>(DHT_GPIO);
-static const dht_sensor_type_t sensor_type = DHT_TYPE_DHT11;
+#define SENSOR_TASK_LOG "SENSOR_TASK"
+void sensor_task(void *pvParameters) {
 
-void dht_task(void *pvParameters) {
-    // DHT sensors that come mounted on a PCB generally have
-    // pull-up resistors on the data pin.  It is recommended
-    // to provide an external pull-up resistor otherwise...
-    gpio_set_pull_mode(dht_gpio, GPIO_PULLUP_ONLY);
+    if(pvParameters == NULL) {
+        ESP_LOGE(SENSOR_TASK_LOG, "Invalid Sensor Recieved");
+        return;
+    }
 
-    int16_t temperature, humidity;
-    LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+    LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
+
+    // initialize sensor
+    if(!sensor->init()) {
+        ESP_LOGE(SENSOR_TASK_LOG, "Failed to initialize sensor");
+        return;
+    }
 
     while(true){
-        if(dht_read_data(sensor_type, dht_gpio, &humidity, &temperature) == ESP_OK) {
-            dht_sensor->setHumidity(humidity / 10.f);
-            dht_sensor->setTemperature(temperature / 10.f);
-            DHT_INFO("Humidity: %.2f, Temp: %.2fC", dht_sensor->getHumidity(), dht_sensor->getTemperature());
-        }
-        else {
-            DHT_INFO("Could not read data from sensor");
-        }
+        sensor->readSensor();
 
         // If you read the sensor data too often, it will heat up
         // http://www.kandrsmith.org/RJS/Misc/Hygrometers/dht_sht_how_fast.html
@@ -75,6 +68,11 @@ void http_task(void *pvParameters) {
     //
     // gpio_set_level(GPIO_OUTPUT_PIN, 1);
 
+    if(pvParameters == NULL) {
+        ESP_LOGE(HTTP_TASK_LOG, "Invalid Sensor Recieved");
+        return;
+    }
+
     // setup wifi and http client
     LDM::WiFi wifi;
     LDM::HTTP http(const_cast<char*>(HTTP_POST_ENDPOINT));
@@ -84,11 +82,11 @@ void http_task(void *pvParameters) {
     LDM::OTA ota(const_cast<char*>(FIRMWARE_UPGRADE_ENDPOINT));
 #endif
 
-    // create JSON message
-    LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
-
     wifi.init_sta();
-    cJSON *message = buildDHT11Json(dht_sensor->getTemperature(), dht_sensor->getHumidity());
+
+    // create JSON message
+    LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
+    cJSON *message = sensor->buildJson();
 
     // POST
     http.postJSON(message);
@@ -128,20 +126,24 @@ void ble_task(void *pvParameters) {
 
     LDM::BLE ble("Nightgown");
     ble.init();
+/*
     ble.setupCallback();
 
+#if CONFIG_DHT11_SENSOR_ENABLED
     // get sensor data
-    LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+    //LDM::DHT* dht_sensor = (LDM::DHT*)pvParameters;
+    LDM::DHT* p_dht_sensor = &dht_sensor;
 
-    uint8_t humidity = dht_sensor->getHumidity();
-    uint8_t temperature = dht_sensor->getTemperature();
+    uint8_t humidity = p_dht_sensor->getHumidity();
+    uint8_t temperature = p_dht_sensor->getTemperature();
     ESP_LOGI(BLE_TASK_LOG, "Updating humidity: %d, temperature: %d", humidity, temperature);
     ble.updateValue(humidity, temperature);
+#endif
+*/
 
     // advertise BLE data for a while
     vTaskDelay(pdMS_TO_TICKS(BLE_ADVERTISE_DURATION * 1E3));
     ble.deinit();
-
     messageFinished = true;
     vTaskDelete(NULL);
 }
