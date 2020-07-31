@@ -12,6 +12,7 @@
 #include <tasks.hpp>
 #include <wifi.hpp>
 #include <ble.hpp>
+#include <ota.hpp>
 
 #define SLEEP_DURATION CONFIG_SLEEP_DURATION
 #define BLE_ADVERTISE_DURATION CONFIG_BLE_ADVERTISE_DURATION
@@ -28,13 +29,13 @@ void sensor_task(void *pvParameters) {
     }
 
     LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
-    
+
     // initialize sensor
     if(!sensor->init()) {
         ESP_LOGE(SENSOR_TASK_LOG, "Failed to initialize sensor");
         return;
     }
-    
+
     while(true){
         sensor->readSensor();
 
@@ -49,7 +50,7 @@ void sensor_task(void *pvParameters) {
 #define HTTP_TASK_LOG "HTTP_TASK"
 //#define GPIO_OUTPUT_PIN 13
 //#define GPIO_OUTPUT_PIN_SEL  (1ULL << GPIO_OUTPUT_PIN)
-
+#define FIRMWARE_UPGRADE_ENDPOINT CONFIG_FIRMWARE_UPGRADE_ENDPOINT
 void http_task(void *pvParameters) {
     // gpio_config_t io_conf;
     // //disable interrupt
@@ -76,6 +77,11 @@ void http_task(void *pvParameters) {
     LDM::WiFi wifi;
     LDM::HTTP http(const_cast<char*>(HTTP_POST_ENDPOINT));
 
+#ifdef CONFIG_OTA_ENABLED
+    // setup ota updater and checkUpdates
+    LDM::OTA ota(const_cast<char*>(FIRMWARE_UPGRADE_ENDPOINT));
+#endif
+
     wifi.init_sta();
 
     // create JSON message
@@ -84,6 +90,11 @@ void http_task(void *pvParameters) {
 
     // POST
     http.postJSON(message);
+
+#ifdef CONFIG_OTA_ENABLED
+    // check OTA updates
+    ota.checkUpdates(true);
+#endif
 
     // cleanup JSON message
     cJSON_Delete(message);
