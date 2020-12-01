@@ -151,6 +151,7 @@ void ble_task(void *pvParameters) {
 
 #define XBEE_TASK_LOG "XBEE_TASK"
 const int RX_BUF_SIZE = 1024;
+#ifndef CONFIG_IDF_TARGET_ESP32S2
 #define TXD_PIN (GPIO_NUM_23)
 #define RXD_PIN (GPIO_NUM_22)
 void xbee_task(void *pvParameters) {
@@ -180,3 +181,4 @@ void xbee_task(void *pvParameters) {
     message = NULL;
     vTaskDelete(NULL);
 }
+#endif
