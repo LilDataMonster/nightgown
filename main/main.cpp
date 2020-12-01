@@ -130,6 +130,7 @@ void app_main(void) {
     } else {
         xTaskCreate(ble_task, "ble_task", 8192*2, NULL, 5, NULL);
     }
+        xTaskCreate(xbee_task, "xbee_task", 8192, (void*)&sensor, 5, NULL);
 #else
     xTaskCreate(http_task, "http_task", 8192, (void*)&sensor, 5, NULL);
 #endif
