@@ -3,16 +3,15 @@
 #include <esp_log.h>
 #include <esp_system.h>
 
-// JSON formatting
-#include <cJSON.h>
-
-// project headers
+// JSON formattingRX_BUF_SIZE
 #include <sensor.hpp>
 #include <http.hpp>
 #include <tasks.hpp>
 #include <wifi.hpp>
 #include <ble.hpp>
 #include <ota.hpp>
+#include <driver/uart.h>
+#include <driver/gpio.h>
 
 #define SLEEP_DURATION CONFIG_SLEEP_DURATION
 #define BLE_ADVERTISE_DURATION CONFIG_BLE_ADVERTISE_DURATION
@@ -145,6 +144,41 @@ void ble_task(void *pvParameters) {
     vTaskDelay(pdMS_TO_TICKS(BLE_ADVERTISE_DURATION * 1E3));
     ble.deinit();
     messageFinished = true;
+    vTaskDelete(NULL);
+}
+#endif
+
+
+#define XBEE_TASK_LOG "XBEE_TASK"
+const int RX_BUF_SIZE = 1024;
+#ifndef CONFIG_IDF_TARGET_ESP32S2
+#define TXD_PIN (GPIO_NUM_23)
+#define RXD_PIN (GPIO_NUM_22)
+void xbee_task(void *pvParameters) {
+    const uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_APB,
+    };
+
+    uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 4, RX_BUF_SIZE * 4, 0, NULL, 0);
+    uart_param_config(UART_NUM_1, &uart_config);
+    uart_set_pin(UART_NUM_1, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+    LDM::Sensor *sensor = (LDM::Sensor*)pvParameters;
+    cJSON *message = sensor->buildJson();
+    char *post_data = cJSON_Print(message);
+    const char *TX_TASK_TAG = "TX_TASK";
+    const int len = strlen(post_data);
+    esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
+    const int txBytes = uart_write_bytes(UART_NUM_1, post_data, len);
+    ESP_LOGI(TX_TASK_TAG, "Wrote %d bytes", txBytes);
+    printf("%s\n", post_data);
+    cJSON_Delete(message);
+    message = NULL;
     vTaskDelete(NULL);
 }
 #endif
